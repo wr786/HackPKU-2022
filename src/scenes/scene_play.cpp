@@ -136,10 +136,16 @@ public:
         if(IsKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
         }
-        if (IsKeyDown(KEY_D) || IsKeyDown(KEY_F)) 
+        int pre_rail = player->rail;
+        bool flag = false;
+        if (IsKeyDown(KEY_D) || IsKeyDown(KEY_F)) {
             player->rail -= 1;
-        if (IsKeyDown(KEY_J) || IsKeyDown(KEY_K)) 
+            flag = true;
+        }
+        if (IsKeyDown(KEY_J) || IsKeyDown(KEY_K)) {
             player->rail += 1;
+            flag = true;
+        }
 
         // Check player not out of rails
         if (player->rail > 1) 
@@ -164,7 +170,8 @@ public:
         // 记录score
         float new_score = 0;
         int new_level = -1;
-        if((pre_rail ^ player->rail != 0 && pre_rail != 0) || (pre_rail == 0 && flag)) {//run状态
+        if((pre_rail ^ player->rail != 0 && pre_rail != 0) || (pre_rail == 0 && flag)
+            || (pre_rail ^ player->rail != 0 && pre_rail != 1) || (pre_rail == 1 && flag)) {
             for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
                 float temp = BIAS + SPEED * (iter->bounds.x - (float)Timer.elapsed());
                 if(temp + NOTE_WIDTH < PLAYER_X) continue;
