@@ -19,6 +19,7 @@ int main()
     scenes[SCENE_MAIN] = new SceneMain();
     scenes[SCENE_SELECT] = new SceneSelect();
     scenes[SCENE_PLAY] = new ScenePlay();
+    scenes[SCENE_SCORE] = new SceneScore();
     SceneBase* g = scenes[sceneType];
 
     InitWindow(g->screenWidth, g->screenHeight, "Unnamed");
