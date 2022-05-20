@@ -10,7 +10,7 @@ public:
     float frameWidth, frameHeight;
     int curFrame, curRow, frameCounter;
     Rectangle frameRec;
-    float fps = 60;
+    float fps = 12;
     Animation() {}
     Animation(string path, int framesPerRow, int rowCounts, float _fps) {
         pic = LoadTexture(path.c_str());
@@ -44,6 +44,10 @@ public:
 
     const Texture2D& getTexture() const {
         return pic;
+    }
+
+    void unload() {
+        UnloadTexture(pic);
     }
 };
 

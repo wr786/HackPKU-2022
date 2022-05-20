@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include "scene.h"
 #include "animation.h"
-#include "config.h"
+#include "../config.cpp"
 #include "../music.cpp"
 #include <cstring>
 #include <iostream>
@@ -11,10 +11,12 @@ class SceneSelect: public SceneBase {
 private:
     bool isEnd = false;    
     vector<Music> BGMlst;
+    vector<Texture2D> illustLst;
     bool curMusicIndex;
     // 背景
     Animation bg;
     Rectangle windowRec;
+    float rotation;
 public:
     void init() {
         printf("[debug] calling SceneSelect");
@@ -27,14 +29,17 @@ public:
         for(auto& mname: music_list) {
             string path = MUSIC_FOLDER + mname;
             BGMlst.push_back(LoadMusicStream(path.c_str()));
+            path = SONG_ILLUST_FOLDER + mname.substr(0, mname.find_last_of('.')) + ".png";
+            illustLst.push_back(LoadTexture(path.c_str()));
         }
 
         curMusicIndex = 0;
+        rotation = 0;
 
         // 初始化背景
-        bg = Animation(string(IMAGE_FOLDER) + string("bg_select.png"), 5, 5, 12);
+        bg = Animation(IMAGE_FOLDER + "bg_select.png", 5, 5, 12);
         windowRec = {0, 0, SceneSelect::screenWidth, SceneSelect::screenHeight};
-
+        
         SetTargetFPS(60);
     }
     void draw() {
@@ -44,13 +49,23 @@ public:
         BeginDrawing();
             ClearBackground(GRAY);
             // 处理背景
-            bg.nextFrame();
             DrawTexturePro(bg.getTexture(), bg.getFrame(), windowRec, {0.f, 0.f}, 0, WHITE);
+            // 中间CD
+            DrawTexturePro(
+                illustLst[curMusicIndex], 
+                {0, 0, (float)illustLst[curMusicIndex].width, (float)illustLst[curMusicIndex].height}, 
+                {SceneSelect::screenWidth/2, SceneSelect::screenHeight/2, (float)illustLst[curMusicIndex].width, (float)illustLst[curMusicIndex].height},
+                {(float)illustLst[curMusicIndex].width / 2, (float)illustLst[curMusicIndex].height / 2}, 
+                (float)rotation, 
+                WHITE
+            );
             
             DrawTriangle({1600, 400}, {1440, 900}, {1600, 900}, Fade(BLACK, 0.2f));
         EndDrawing();
     }
     void update() {
+        bg.nextFrame();
+        rotation+=0.5;
         //====================键盘操控=================
         if(IsKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
@@ -60,6 +75,10 @@ public:
         for(auto& music: BGMlst) {
             UnloadMusicStream(music);
         }
+        for(auto& illust: illustLst) {
+            UnloadTexture(illust);
+        }
+        bg.unload();
 
         return SCENE_MAIN;
     }

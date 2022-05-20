@@ -1,7 +1,7 @@
 #include "raylib.h"
 #include "vector"
 #include "scene.h"
-#include "config.h"
+#include "../config.cpp"
 #include <cstdlib>
 #include <fstream>
 #define PLAYER_X 200

@@ -1,6 +1,6 @@
 #include "raylib.h"
 #include "fileio.h"
-#include "config.h"
+#include "config.cpp"
 #include <string>
 #include <vector>
 using namespace std;
