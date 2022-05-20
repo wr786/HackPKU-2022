@@ -1,8 +1,15 @@
 #include "raylib.h"
+#include "vector"
 #include "scene.h"
+#include "config.h"
+#include <cstdlib>
+#include <fstream>
+#define PLAYER_X 200
 #define PLAYER_WIDTH 40
 #define PLAYER_HEIGHT 40
-#define NOTE_SPEED 5
+#define NOTE_WIDTH 40
+#define NOTE_HEIGHT 40
+#define MAX_NUM_MUSIC 1
 
 class Player{
 public:
@@ -19,38 +26,88 @@ public:
     Rectangle bounds;
 };
 
+class Song{
+public:
+    vector<Notes> notes;
+    string note_file_name = "test.txt";
+    string music_file_name = "test.wav";
+    Music back_sound;
+
+    void InitMusic()
+    {
+        string path = MUSIC_FOLDER;
+        path += music_file_name;
+        printf("[debug] music_file_name %s\n", path.c_str());
+        back_sound = LoadMusicStream(path.c_str());
+    }
+
+    void CreateNotesFromFile()
+    {
+        string path = MUSIC_FOLDER;
+        path += note_file_name;
+        // read from note file and create notes
+        ifstream infile(path);
+        printf("[debug] note_file_name %s\n", path.c_str());
+        float time;
+        while(!infile.eof())
+        {
+            infile >> time;
+
+            // printf("[debug] time %f \n", time);
+
+            Notes note;
+            note.time = time;
+            note.color = BLACK;
+            note.rail = rand()%2;
+            note.bounds =  (Rectangle){ PLAYER_X + note.time * 60 * 60, note.rail * 120 + 200, NOTE_WIDTH, NOTE_HEIGHT };
+            notes.push_back(note);
+        }
+        notes.pop_back();
+    }
+};
+
 
 class ScenePlay: public SceneBase {
 
 private:
     bool isEnd = false;
     Player *player;
+    Song *song;
     
 public:
     void init() {
         printf("[debug] calling ScenePlay");
 
         SetTargetFPS(60);
+        InitAudioDevice();
 
         player = new Player();
         player->rail = 0;
         player->color = RED;
-        player->bounds = (Rectangle){ 30 + 14, player->rail * 120 + 200, PLAYER_WIDTH, PLAYER_HEIGHT };
+        player->bounds = (Rectangle){ PLAYER_X, player->rail * 120 + 200, PLAYER_WIDTH, PLAYER_HEIGHT };
+
+        song = new Song();
+        song->CreateNotesFromFile();
+        song->InitMusic();
     }
 
     void draw() {
         BeginDrawing();
             ClearBackground(RAYWHITE);
             DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
+            for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
+                DrawRectangle(iter->bounds.x, iter->bounds.y, iter->bounds.width, iter->bounds.height, iter->color);
+            }
         EndDrawing();
     }
 
     void update() {
+        PlayMusicStream(song->back_sound);
+        UpdateMusicStream(song->back_sound);
         //====================键盘操控=================
         if(IsKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
         }
-
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_F)) 
             player->rail -= 1;
         if (IsKeyDown(KEY_J) || IsKeyDown(KEY_K)) 
@@ -62,8 +119,11 @@ public:
         else if (player->rail < 0) 
             player->rail = 0;
 
-        printf("[debug]Player rail: %d\n", player->rail);
-        player->bounds = (Rectangle){ 30 + 14, player->rail * 120 + 200, PLAYER_WIDTH, PLAYER_HEIGHT };
+        player->bounds = (Rectangle){ PLAYER_X, player->rail * 120 + 200, PLAYER_WIDTH, PLAYER_HEIGHT };
+
+        for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
+            iter->bounds.x -= 60;
+        }
     }
 
     SceneType end() {
