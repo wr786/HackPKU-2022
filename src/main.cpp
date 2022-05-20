@@ -7,7 +7,7 @@
 using std::string;
 
 // 修改下面这行即可修改起始界面，方面测试
-SceneType sceneType = SCENE_MAIN;
+SceneType sceneType = SCENE_SELECT;
 SceneBase* scenes[SCENE_TOTAL];
 
 int main()

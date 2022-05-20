@@ -1,13 +1,20 @@
 #include "raylib.h"
 #include "scene.h"
+#include "animation.h"
 #include "config.h"
 #include "../music.cpp"
+#include <cstring>
+#include <iostream>
+using namespace std;
 
 class SceneSelect: public SceneBase {
 private:
     bool isEnd = false;    
     vector<Music> BGMlst;
     bool curMusicIndex;
+    // 背景
+    Animation bg;
+    Rectangle windowRec;
 public:
     void init() {
         printf("[debug] calling SceneSelect");
@@ -24,6 +31,10 @@ public:
 
         curMusicIndex = 0;
 
+        // 初始化背景
+        bg = Animation(string(IMAGE_FOLDER) + string("bg_select.png"), 5, 5, 12);
+        windowRec = {0, 0, SceneSelect::screenWidth, SceneSelect::screenHeight};
+
         SetTargetFPS(60);
     }
     void draw() {
@@ -32,6 +43,10 @@ public:
 
         BeginDrawing();
             ClearBackground(GRAY);
+            // 处理背景
+            bg.nextFrame();
+            DrawTexturePro(bg.getTexture(), bg.getFrame(), windowRec, {0.f, 0.f}, 0, WHITE);
+            
             DrawTriangle({1600, 400}, {1440, 900}, {1600, 900}, Fade(BLACK, 0.2f));
         EndDrawing();
     }
@@ -42,6 +57,10 @@ public:
         }
     }
     SceneType end() {
+        for(auto& music: BGMlst) {
+            UnloadMusicStream(music);
+        }
+
         return SCENE_MAIN;
     }
     bool is_end() {
