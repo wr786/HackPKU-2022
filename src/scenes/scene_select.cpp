@@ -12,17 +12,26 @@ private:
     bool isEnd = false;    
     vector<Music> BGMlst;
     vector<Texture2D> illustLst;
-    bool curMusicIndex;
+    int curMusicIndex;
     Animation bg;   // 背景
     Rectangle windowRec;
     float rotation;
     Font fontCaption;
+
+    bool isKeyPressed(KeyboardKey key) {
+        if(IsKeyPressed(key)) {
+            play_once(taps[0]);
+            return true;
+        }
+        return false;
+    }
 public:
     void init() {
         printf("[debug] calling SceneSelect");
 
         InitAudioDevice();
         init_BGM_play();
+        init_taps();
 
         // 加载音乐列表
         init_music_status_list();
@@ -75,8 +84,16 @@ public:
         bg.nextFrame();
         rotation+=0.5;
         //====================键盘操控=================
-        if(IsKeyPressed(KEY_ESCAPE)) {
+        if(isKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
+        }
+        if(isKeyPressed(KEY_A) || isKeyPressed(KEY_LEFT)) {
+            curMusicIndex = (curMusicIndex + BGMlst.size() - 1) % BGMlst.size();
+            PlayMusicStream(BGMlst[curMusicIndex]); 
+        }
+        if(isKeyPressed(KEY_D) || isKeyPressed(KEY_RIGHT)) {
+            curMusicIndex = (curMusicIndex + 1) % BGMlst.size();
+            PlayMusicStream(BGMlst[curMusicIndex]); 
         }
     }
     SceneType end() {
@@ -89,7 +106,7 @@ public:
         bg.unload();
         UnloadFont(fontCaption);
 
-        return SCENE_MAIN;
+        return SCENE_NULL;
     }
     bool is_end() {
         if(!isEnd) return false;

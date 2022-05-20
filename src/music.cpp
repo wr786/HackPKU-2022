@@ -38,6 +38,7 @@ public:
 };
 vector<string> music_list;
 vector<MusicStatus> musicStatus_list;
+vector<Sound> taps;
 
 int init_music_list() {
     music_list.clear();
@@ -52,6 +53,20 @@ int init_music_status_list() {
         musicStatus_list.push_back(MusicStatus(mname));
     }
     return musicStatus_list.size();
+}
+
+void init_taps(){
+    for(int i=1; i<=15; i++){
+        string tap_filename = SOUND_FOLDER + "Tap 00.wav";
+        int endPos = tap_filename.find_last_of('.');
+        tap_filename[endPos-2] = '0' + i/10;
+        tap_filename[endPos-1] = '0' + i%10;  
+        taps.push_back(LoadSound(tap_filename.c_str()));
+    }
+}
+
+void play_once(Sound &tap){
+    PlaySound(tap);
 }
 
 bool IF_BGM_PLAYING = false;
