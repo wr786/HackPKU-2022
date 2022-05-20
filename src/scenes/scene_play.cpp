@@ -20,7 +20,6 @@ public:
 
 class Notes{
 public:
-    float time;
     int rail;
     Color color;
     Rectangle bounds;
@@ -29,7 +28,7 @@ public:
 class Song{
 public:
     vector<Notes> notes;
-    string note_file_name = "test.txt";
+    string note_file_name = "test_.txt";
     string music_file_name = "test.wav";
     Music back_sound;
 
@@ -48,18 +47,16 @@ public:
         // read from note file and create notes
         ifstream infile(path);
         printf("[debug] note_file_name %s\n", path.c_str());
-        float time;
+        float x;
         while(!infile.eof())
         {
-            infile >> time;
-
-            // printf("[debug] time %f \n", time);
+            infile >> x;
 
             Notes note;
-            note.time = time;
             note.color = BLACK;
             note.rail = rand()%2;
-            note.bounds =  (Rectangle){ PLAYER_X + note.time * 60 * 60, note.rail * 120 + 200, NOTE_WIDTH, NOTE_HEIGHT };
+            note.bounds.x = x;
+            note.bounds =  (Rectangle){ PLAYER_X + note.bounds.x, note.rail * 120 + 200, NOTE_WIDTH, NOTE_HEIGHT };
             notes.push_back(note);
         }
         notes.pop_back();
@@ -122,7 +119,7 @@ public:
         player->bounds = (Rectangle){ PLAYER_X, player->rail * 120 + 200, PLAYER_WIDTH, PLAYER_HEIGHT };
 
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
-            iter->bounds.x -= 60;
+            iter->bounds.x -= 4.15;
         }
     }
 
