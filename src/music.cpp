@@ -41,13 +41,15 @@ vector<MusicStatus> musicStatus_list;
 vector<Sound> taps;
 
 int init_music_list() {
-    music_list.clear();
+    if(music_list.size()) 
+        return music_list.size();
     getJustCurrentFile(MUSIC_FOLDER, music_list);
     return music_list.size();
 }
 
 int init_music_status_list() {
-    musicStatus_list.clear();
+    if(musicStatus_list.size())
+        return musicStatus_list.size();
     init_music_list();
     for(auto& mname: music_list) {
         musicStatus_list.push_back(MusicStatus(mname));
@@ -56,6 +58,7 @@ int init_music_status_list() {
 }
 
 void init_taps(){
+    if(taps.size()) return;
     for(int i=1; i<=15; i++){
         string tap_filename = SOUND_FOLDER + "Tap 00.wav";
         int endPos = tap_filename.find_last_of('.');

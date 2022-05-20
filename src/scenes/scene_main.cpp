@@ -4,6 +4,7 @@
 class SceneMain: public SceneBase {
 private:
     bool isEnd = false;
+    bool gotoSelect = false;
 public:
     void init() {
         printf("[debug] calling SceneMain");
@@ -23,8 +24,16 @@ public:
         if(IsKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
         }
+        if(IsKeyPressed(KEY_SPACE)) {
+            gotoSelect = true;
+            isEnd = true;
+        }
     }
     SceneType end() {
+        if(gotoSelect) {
+            gotoSelect = false;
+            return SCENE_SELECT;
+        }
         return SCENE_NULL;
     }
     bool is_end() {

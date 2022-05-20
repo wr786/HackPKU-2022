@@ -35,10 +35,10 @@ public:
     vector<Notes> notes;
     vector<float> notes_created;
     // 先考虑一歌一谱
-    string note_file_name = selectedMusicStatus.name + ".txt";
+    string note_file_name = selectedMusicStatus.fullName() + ".txt";
     // used for create mode
     string note_created_file_name = "test_created.txt";
-    string music_file_name = selectedMusicStatus.name + ".wav";
+    string music_file_name = selectedMusicStatus.fullName() + ".wav";
     Music back_sound;
 
     void InitMusic()
@@ -132,6 +132,9 @@ public:
         if(IsKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
         }
+        if(IsKeyPressed(KEY_Q)) {
+            isEnd = true;
+        }
         int pre_rail = player->rail;
         bool flag = false;
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_F)) {
@@ -183,7 +186,7 @@ public:
     }
 
     SceneType end() {
-        return SCENE_NULL;
+        return SCENE_SELECT;
     }
 
     bool is_end() {

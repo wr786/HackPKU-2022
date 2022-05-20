@@ -12,6 +12,8 @@ extern MusicStatus selectedMusicStatus;
 class SceneSelect: public SceneBase {
 private:
     bool isEnd = false;    
+    bool inited = false;
+    int escCnt = 2;
     vector<Music> BGMlst;
     vector<Texture2D> illustLst;
     int curMusicIndex;
@@ -32,28 +34,33 @@ public:
     void init() {
         printf("[debug] calling SceneSelect");
 
-        InitAudioDevice();
-        init_BGM_play();
-        init_taps();
+        if(!inited) {
+            InitAudioDevice();
+            init_BGM_play();
+            init_taps();
 
-        // 加载音乐列表
-        init_music_status_list();
-        for(auto& ms: musicStatus_list) {
-            string path = MUSIC_FOLDER + ms.fullName() + ".wav";
-            BGMlst.push_back(LoadMusicStream(path.c_str()));
-            path = SONG_ILLUST_FOLDER + ms.fullName() + ".png";
-            illustLst.push_back(LoadTexture(path.c_str()));
+            // 加载音乐列表
+            init_music_status_list();
+            for(auto& ms: musicStatus_list) {
+                string path = MUSIC_FOLDER + ms.fullName() + ".wav";
+                BGMlst.push_back(LoadMusicStream(path.c_str()));
+                path = SONG_ILLUST_FOLDER + ms.fullName() + ".png";
+                illustLst.push_back(LoadTexture(path.c_str()));
+            }
+
+            // 初始化背景
+            bg = Animation(IMAGE_FOLDER + "bg_select.png", 5, 5, 12);
+            windowRec = {0, 0, screenWidth, screenHeight};
+            
+            fontCaption = LoadFontEx(string(FONT_FOLDER + "bb2180.ttf").c_str(), 96, 0, 0);
+
+            inited = true;
         }
 
-        curMusicIndex = 0;
+        if(selectedMusicIndex) curMusicIndex = selectedMusicIndex;
+        else curMusicIndex = 0;
         selectedMusicIndex = -1;
         rotation = 0;
-
-        // 初始化背景
-        bg = Animation(IMAGE_FOLDER + "bg_select.png", 5, 5, 12);
-        windowRec = {0, 0, screenWidth, screenHeight};
-        
-        fontCaption = LoadFontEx(string(FONT_FOLDER + "bb2180.ttf").c_str(), 96, 0, 0);
 
         SetTargetFPS(60);
     }
@@ -105,14 +112,14 @@ public:
         }
     }
     SceneType end() {
-        for(auto& music: BGMlst) {
-            UnloadMusicStream(music);
-        }
-        for(auto& illust: illustLst) {
-            UnloadTexture(illust);
-        }
-        bg.unload();
-        UnloadFont(fontCaption);
+        // for(auto& music: BGMlst) {
+        //     UnloadMusicStream(music);
+        // }
+        // for(auto& illust: illustLst) {
+        //     UnloadTexture(illust);
+        // }
+        // bg.unload();
+        // UnloadFont(fontCaption);
         
         if(selectedMusicIndex != -1) {
             return SCENE_PLAY;
