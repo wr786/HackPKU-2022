@@ -9,6 +9,7 @@ typedef enum {
     SCENE_MAIN, 
     SCENE_SELECT,
     SCENE_PLAY,
+    SCENE_SCORE,
     SCENE_TOTAL
 } SceneType;
 
