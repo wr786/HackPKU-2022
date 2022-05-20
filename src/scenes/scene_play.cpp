@@ -1,14 +1,17 @@
 #include "raylib.h"
-#include "vector"
 #include "scene.h"
 #include "config.h"
 #include <cstdlib>
 #include <fstream>
+#include <string>
+#include <vector>
 #define PLAYER_X 200
 #define PLAYER_WIDTH 40
 #define PLAYER_HEIGHT 40
-#define NOTE_WIDTH 40
-#define NOTE_HEIGHT 40
+#define NOTE_WIDTH 20
+#define NOTE_HEIGHT 20
+#define NOTE_SPEED 6
+#define NOTE_OFFSET 100
 #define MAX_NUM_MUSIC 1
 
 class Player{
@@ -20,6 +23,7 @@ public:
 
 class Notes{
 public:
+    float time;
     int rail;
     Color color;
     Rectangle bounds;
@@ -28,8 +32,11 @@ public:
 class Song{
 public:
     vector<Notes> notes;
-    string note_file_name = "song3.txt";
-    string music_file_name = "3.wav";
+    vector<float> notes_created;
+    string note_file_name = "test_time.txt";
+    // used for create mode
+    string note_created_file_name = "test_created.txt";
+    string music_file_name = "test.wav";
     Music back_sound;
 
     void InitMusic()
@@ -47,19 +54,28 @@ public:
         // read from note file and create notes
         ifstream infile(path);
         printf("[debug] note_file_name %s\n", path.c_str());
-        float x;
+        float time;
         while(!infile.eof())
         {
-            infile >> x;
+            infile >> time;
 
             Notes note;
+            note.time = time;
             note.color = BLACK;
             note.rail = rand()%2;
-            note.bounds.x = x;
-            note.bounds =  (Rectangle){ note.bounds.x, note.rail * 120 + 200, NOTE_WIDTH, NOTE_HEIGHT };
+            note.bounds =  (Rectangle){ NOTE_OFFSET + PLAYER_X + note.time * 60 * NOTE_SPEED, note.rail * 120 + 200, NOTE_WIDTH, NOTE_HEIGHT };
             notes.push_back(note);
         }
         notes.pop_back();
+    }
+
+    void SaveNotesToFile()
+    {
+        string path = NOTES_FOLDER;
+        path += note_created_file_name;
+        ofstream outfile(path);
+        for (const auto &e : notes_created) 
+            outfile << e << "\n";
     }
 };
 
@@ -119,8 +135,17 @@ public:
         player->bounds = (Rectangle){ PLAYER_X, player->rail * 120 + 200, PLAYER_WIDTH, PLAYER_HEIGHT };
 
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
-            iter->bounds.x -= 2.7;
+            iter->bounds.x -= NOTE_SPEED;
         }
+
+        //====================create mode=================
+        /*
+        if (IsKeyDown(KEY_D) || IsKeyDown(KEY_F) || IsKeyDown(KEY_J) || IsKeyDown(KEY_K))
+            song->notes_created.push_back(GetTime());
+
+        if (IsKeyDown(KEY_S))
+            song->SaveNotesToFile();
+        */
     }
 
     SceneType end() {
