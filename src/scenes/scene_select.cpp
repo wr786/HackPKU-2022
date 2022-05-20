@@ -49,7 +49,7 @@ public:
             }
 
             // 初始化背景
-            bg = Animation(IMAGE_FOLDER + "bg_select.png", 6, 3, 10);
+            bg = Animation(IMAGE_FOLDER + "bg_select_2.png", 5, 5, 12);
             windowRec = {0, 0, screenWidth, screenHeight};
             
             fontCaption = LoadFontEx(string(FONT_FOLDER + "bb2180.ttf").c_str(), 96, 0, 0);
