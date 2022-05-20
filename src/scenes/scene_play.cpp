@@ -12,7 +12,6 @@
 #define NOTE_HEIGHT 20
 #define NOTE_SPEED 6
 #define NOTE_OFFSET 100
-#define BIAS (float)800
 #define SCORE_PER_BLOCK 100
 #define MAX_NUM_MUSIC 1
 using namespace boost;
@@ -66,7 +65,7 @@ public:
             note.time = time;
             note.color = BLACK;
             note.rail = rand()%2;
-            note.bounds =  (Rectangle){ NOTE_OFFSET + PLAYER_X + note.time * 60 * NOTE_SPEED, note.rail * 120 + 200, NOTE_WIDTH, NOTE_HEIGHT };
+            note.bounds = (Rectangle){ NOTE_OFFSET + PLAYER_X + note.time * 60 * NOTE_SPEED, note.rail * 120 + 200, NOTE_WIDTH, NOTE_HEIGHT };
             notes.push_back(note);
         }
         notes.pop_back();
@@ -89,7 +88,6 @@ private:
     bool isEnd = false;
     Player *player;
     Song *song;
-    timer::cpu_timer Timer;
     float totel_score = 0;
     float last_score = 0;
     int last_level = -1;
@@ -115,8 +113,6 @@ public:
         song = new Song();
         song->CreateNotesFromFile();
         song->InitMusic();
-        
-        Timer.start();
     }
 
     void draw() {
@@ -170,10 +166,10 @@ public:
         // 记录score
         float new_score = 0;
         int new_level = -1;
-        if((pre_rail ^ player->rail != 0 && pre_rail != 0) || (pre_rail == 0 && flag)
-            || (pre_rail ^ player->rail != 0 && pre_rail != 1) || (pre_rail == 1 && flag)) {
+        if(((pre_rail ^ player->rail) != 0 && pre_rail != 0) || (pre_rail == 0 && flag)
+            || ((pre_rail ^ player->rail) != 0 && pre_rail != 1) || (pre_rail == 1 && flag)) {
             for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
-                float temp = BIAS + SPEED * (iter->bounds.x - (float)Timer.elapsed());
+                float temp = iter->bounds.x;
                 if(temp + NOTE_WIDTH < PLAYER_X) continue;
                 if(temp - NOTE_WIDTH > PLAYER_X) break;
                 if(iter->bounds.y != player->bounds.y) continue;
