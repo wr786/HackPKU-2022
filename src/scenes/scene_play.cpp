@@ -28,8 +28,8 @@ public:
 class Song{
 public:
     vector<Notes> notes;
-    string note_file_name = "test_.txt";
-    string music_file_name = "test.wav";
+    string note_file_name = "song3.txt";
+    string music_file_name = "3.wav";
     Music back_sound;
 
     void InitMusic()
@@ -42,7 +42,7 @@ public:
 
     void CreateNotesFromFile()
     {
-        string path = MUSIC_FOLDER;
+        string path = NOTES_FOLDER;
         path += note_file_name;
         // read from note file and create notes
         ifstream infile(path);
@@ -56,7 +56,7 @@ public:
             note.color = BLACK;
             note.rail = rand()%2;
             note.bounds.x = x;
-            note.bounds =  (Rectangle){ PLAYER_X + note.bounds.x, note.rail * 120 + 200, NOTE_WIDTH, NOTE_HEIGHT };
+            note.bounds =  (Rectangle){ note.bounds.x, note.rail * 120 + 200, NOTE_WIDTH, NOTE_HEIGHT };
             notes.push_back(note);
         }
         notes.pop_back();
@@ -119,7 +119,7 @@ public:
         player->bounds = (Rectangle){ PLAYER_X, player->rail * 120 + 200, PLAYER_WIDTH, PLAYER_HEIGHT };
 
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
-            iter->bounds.x -= 4.15;
+            iter->bounds.x -= 2.7;
         }
     }
 
