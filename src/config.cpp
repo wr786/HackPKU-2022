@@ -6,9 +6,11 @@
 #include <string>
 using namespace std;
 
-string MUSIC_FOLDER = "../resource/music/";
-string IMAGE_FOLDER = "../resource/image/";
-string NOTES_FOLDER = "../resource/notes/";
+string RESOURCE_FOLDER = "../resource/";
+string MUSIC_FOLDER = RESOURCE_FOLDER + "music/";
+string IMAGE_FOLDER = RESOURCE_FOLDER + "image/";
+string NOTES_FOLDER = RESOURCE_FOLDER + "notes/";
+string FONT_FOLDER = RESOURCE_FOLDER + "font/";
 string SONG_ILLUST_FOLDER = IMAGE_FOLDER + "song_illust/";
 
 #endif

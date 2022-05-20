@@ -13,10 +13,10 @@ private:
     vector<Music> BGMlst;
     vector<Texture2D> illustLst;
     bool curMusicIndex;
-    // 背景
-    Animation bg;
+    Animation bg;   // 背景
     Rectangle windowRec;
     float rotation;
+    Font fontCaption;
 public:
     void init() {
         printf("[debug] calling SceneSelect");
@@ -39,8 +39,10 @@ public:
 
         // 初始化背景
         bg = Animation(IMAGE_FOLDER + "bg_select.png", 5, 5, 12);
-        windowRec = {0, 0, SceneSelect::screenWidth, SceneSelect::screenHeight};
+        windowRec = {0, 0, screenWidth, screenHeight};
         
+        fontCaption = LoadFontEx(string(FONT_FOLDER + "bb2180.ttf").c_str(), 96, 0, 0);
+
         SetTargetFPS(60);
     }
     void draw() {
@@ -52,13 +54,18 @@ public:
             DrawTexturePro(
                 illustLst[curMusicIndex], 
                 {0, 0, (float)illustLst[curMusicIndex].width, (float)illustLst[curMusicIndex].height}, 
-                {SceneSelect::screenWidth/2, SceneSelect::screenHeight/2, (float)illustLst[curMusicIndex].width, (float)illustLst[curMusicIndex].height},
+                {screenWidth/2, screenHeight/2, (float)illustLst[curMusicIndex].width, (float)illustLst[curMusicIndex].height},
                 {(float)illustLst[curMusicIndex].width / 2, (float)illustLst[curMusicIndex].height / 2}, 
                 (float)rotation, 
                 WHITE
             );
-            
-            DrawTriangle({1600, 400}, {1440, 900}, {1600, 900}, Fade(BLACK, 0.2f));
+
+            // topBar
+            DrawRectangle(screenWidth/4, 0, screenWidth/2, screenHeight/8, Fade(WHITE, 0.8f));
+            DrawTriangle({screenWidth/4-screenWidth/16, 0}, {screenWidth/4, screenHeight/8}, {screenWidth/4, 0}, Fade(WHITE, 0.8f));
+            DrawTriangle({screenWidth/4*3+screenWidth/16, 0}, {screenWidth/4*3, 0}, {screenWidth/4*3, screenHeight/8}, Fade(WHITE, 0.8f));
+            DrawTextEx(fontCaption, TextFormat(musicStatus_list[curMusicIndex].name.c_str()), {screenWidth/4, 0}, screenHeight/16, 0, BLACK);
+            DrawTextEx(fontCaption, TextFormat(musicStatus_list[curMusicIndex].authorName.c_str()), {screenWidth/4, screenHeight/16}, screenHeight/16, 0, GRAY);
         EndDrawing();
     }
     void update() {
@@ -80,6 +87,7 @@ public:
             UnloadTexture(illust);
         }
         bg.unload();
+        UnloadFont(fontCaption);
 
         return SCENE_MAIN;
     }
