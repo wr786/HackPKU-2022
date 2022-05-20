@@ -8,6 +8,7 @@ typedef enum {
     SCENE_NULL = -1, 
     SCENE_MAIN, 
     SCENE_SELECT,
+    SCENE_PLAY,
     SCENE_TOTAL
 } SceneType;
 
