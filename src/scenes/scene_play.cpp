@@ -5,6 +5,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <map>
 #define PLAYER_X 200
 #define PLAYER_WIDTH 40
 #define PLAYER_HEIGHT 40
@@ -20,19 +21,30 @@ public:
     int rail;
     Color color;
     Rectangle bounds;
+    float score = 0.f;
 };
 
 class Notes{
 public:
+    int id;
     float time;
     int rail;
     Color color;
     Rectangle bounds;
+    int is_valid() { return bounds.x > 0 && (bounds.x + bounds.width) < GetScreenWidth(); }
+    float compute_ratio(Rectangle rec)
+    {
+        float ratio = abs(rec.x - bounds.x) / bounds.width;
+        printf("[debug] collision ratio %f\n", ratio);
+        return ratio;
+    }
 };
 
 class Song{
 public:
     vector<Notes> notes;
+    // used for store valid notes (inside the window)
+    map<int, Notes> valid_notes;
     vector<float> notes_created;
     // 先考虑一歌一谱
     string note_file_name = selectedMusicStatus.name + ".txt";
@@ -57,18 +69,29 @@ public:
         ifstream infile(path);
         printf("[debug] note_file_name %s\n", path.c_str());
         float time;
+        int id = 0;
         while(!infile.eof())
         {
+            id += 1;
             infile >> time;
 
             Notes note;
+            note.id = id;
             note.time = time;
             note.color = BLACK;
             note.rail = rand()%2;
-            note.bounds = (Rectangle){ NOTE_OFFSET + PLAYER_X + note.time * 60 * NOTE_SPEED, note.rail * 120 + 200, NOTE_WIDTH, NOTE_HEIGHT };
+            note.bounds = (Rectangle){ NOTE_OFFSET + PLAYER_X + note.time * 60 * NOTE_SPEED, float(note.rail * 120 + 200), NOTE_WIDTH, NOTE_HEIGHT };
             notes.push_back(note);
+            if (note.is_valid())
+            {
+                printf("[debug] Insert Note %d.\n", note.id);
+                valid_notes.insert(pair<int, Notes>(note.id, note));
+            }
+                
         }
         notes.pop_back();
+        for(auto iter = valid_notes.begin(); iter != valid_notes.end(); iter++)
+            printf("[debug] valid note %d.\n", iter->first);
     }
 
     void SaveNotesToFile()
@@ -91,12 +114,6 @@ private:
     float totel_score = 0;
     float last_score = 0;
     int last_level = -1;
-    int level(float x) {
-        if(x < 60) return 0;
-        if(x < 70) return 1;
-        if(x < 85) return 2;
-        return 3;
-    }
     
 public:
     void init() {
@@ -108,7 +125,7 @@ public:
         player = new Player();
         player->rail = 0;
         player->color = RED;
-        player->bounds = (Rectangle){ PLAYER_X, player->rail * 120 + 200, PLAYER_WIDTH, PLAYER_HEIGHT };
+        player->bounds = (Rectangle){ PLAYER_X, float(player->rail * 120 + 200), PLAYER_WIDTH, PLAYER_HEIGHT };
 
         song = new Song();
         song->CreateNotesFromFile();
@@ -118,6 +135,7 @@ public:
     void draw() {
         BeginDrawing();
             ClearBackground(RAYWHITE);
+            DrawText(TextFormat("%d", player->score), 20, 20, 40, GRAY);
             DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
             for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
                 DrawRectangle(iter->bounds.x, iter->bounds.y, iter->bounds.width, iter->bounds.height, iter->color);
@@ -132,15 +150,27 @@ public:
         if(IsKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
         }
-        int pre_rail = player->rail;
-        bool flag = false;
+
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_F)) {
             player->rail -= 1;
-            flag = true;
+            for(auto iter = song->valid_notes.begin(); iter != song->valid_notes.end(); iter++) {
+                if (CheckCollisionRecs(player->bounds, iter->second.bounds))
+                {
+                    printf("[debug] collision detected.\n");
+                    player->score += iter->second.compute_ratio(player->bounds);
+                }
+            }
         }
         if (IsKeyDown(KEY_J) || IsKeyDown(KEY_K)) {
             player->rail += 1;
-            flag = true;
+            for(auto iter = song->valid_notes.begin(); iter != song->valid_notes.end(); iter++) {
+                if (CheckCollisionRecs(player->bounds, iter->second.bounds))
+                {
+                    printf("[debug] collision detected.\n");
+                    player->score += iter->second.compute_ratio(player->bounds);
+                }
+                   
+            }
         }
 
         // Check player not out of rails
@@ -149,10 +179,17 @@ public:
         else if (player->rail < 0) 
             player->rail = 0;
 
-        player->bounds = (Rectangle){ PLAYER_X, player->rail * 120 + 200, PLAYER_WIDTH, PLAYER_HEIGHT };
+        player->bounds = (Rectangle){ PLAYER_X, float(player->rail * 120 + 200), PLAYER_WIDTH, PLAYER_HEIGHT };
 
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
             iter->bounds.x -= NOTE_SPEED;
+            if (iter->is_valid()) {
+                song->valid_notes.insert(pair<int, Notes>(iter->id, *iter));
+            }
+            else {
+                song->valid_notes.erase(iter->id);
+            }
+            
         }
 
         //====================create mode=================
@@ -163,23 +200,6 @@ public:
         if (IsKeyDown(KEY_S))
             song->SaveNotesToFile();
         */
-        // 记录score
-        float new_score = 0;
-        int new_level = -1;
-        if(((pre_rail ^ player->rail) != 0 && pre_rail != 0) || (pre_rail == 0 && flag)
-            || ((pre_rail ^ player->rail) != 0 && pre_rail != 1) || (pre_rail == 1 && flag)) {
-            for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
-                float temp = iter->bounds.x;
-                if(temp + NOTE_WIDTH < PLAYER_X) continue;
-                if(temp - NOTE_WIDTH > PLAYER_X) break;
-                if(iter->bounds.y != player->bounds.y) continue;
-                new_score = SCORE_PER_BLOCK - 2 * abs((iter->bounds.x) - PLAYER_X);
-                new_level = level(new_score);
-                last_score = new_score;
-                totel_score += new_score;
-                last_level = new_level;
-            }
-        }
     }
 
     SceneType end() {

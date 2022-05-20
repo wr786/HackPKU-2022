@@ -8,7 +8,7 @@
 using std::string;
 
 // 修改下面这行即可修改起始界面，方面测试
-SceneType sceneType = SCENE_SELECT;
+SceneType sceneType = SCENE_PLAY;
 SceneBase* scenes[SCENE_TOTAL];
 
 MusicStatus selectedMusicStatus;
