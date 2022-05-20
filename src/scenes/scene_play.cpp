@@ -12,7 +12,10 @@
 #define NOTE_HEIGHT 20
 #define NOTE_SPEED 6
 #define NOTE_OFFSET 100
+#define BIAS (float)800
+#define SCORE_PER_BLOCK 100
 #define MAX_NUM_MUSIC 1
+using namespace boost;
 
 class Player{
 public:
@@ -86,6 +89,16 @@ private:
     bool isEnd = false;
     Player *player;
     Song *song;
+    timer::cpu_timer Timer;
+    float totel_score = 0;
+    float last_score = 0;
+    int last_level = -1;
+    int level(float x) {
+        if(x < 60) return 0;
+        if(x < 70) return 1;
+        if(x < 85) return 2;
+        return 3;
+    }
     
 public:
     void init() {
@@ -102,6 +115,8 @@ public:
         song = new Song();
         song->CreateNotesFromFile();
         song->InitMusic();
+        
+        Timer.start();
     }
 
     void draw() {
@@ -146,6 +161,22 @@ public:
         if (IsKeyDown(KEY_S))
             song->SaveNotesToFile();
         */
+        // 记录score
+        float new_score = 0;
+        int new_level = -1;
+        if((pre_rail ^ player->rail != 0 && pre_rail != 0) || (pre_rail == 0 && flag)) {//run状态
+            for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
+                float temp = BIAS + SPEED * (iter->bounds.x - (float)Timer.elapsed());
+                if(temp + NOTE_WIDTH < PLAYER_X) continue;
+                if(temp - NOTE_WIDTH > PLAYER_X) break;
+                if(iter->bounds.y != player->bounds.y) continue;
+                new_score = SCORE_PER_BLOCK - 2 * abs((iter->bounds.x) - PLAYER_X);
+                new_level = level(new_score);
+                last_score = new_score;
+                totel_score += new_score;
+                last_level = new_level;
+            }
+        }
     }
 
     SceneType end() {
