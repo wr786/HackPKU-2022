@@ -1,10 +1,12 @@
 #include "scene.h"
 #include "raylib.h"
 #include "scenes/scene_main.cpp"
+#include "scenes/scene_select.cpp"
 #include <cstdio>
 #include <string>
 using std::string;
 
+// 修改下面这行即可修改起始界面，方面测试
 SceneType sceneType = SCENE_MAIN;
 SceneBase* scenes[SCENE_TOTAL];
 
@@ -12,6 +14,7 @@ int main()
 {
     /* Register scenes */
     scenes[SCENE_MAIN] = new SceneMain();
+    scenes[SCENE_SELECT] = new SceneSelect();
     SceneBase* g = scenes[sceneType];
 
     InitWindow(g->screenWidth, g->screenHeight, "Unnamed");

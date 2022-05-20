@@ -4,11 +4,10 @@
 #include <string>
 using namespace std;
 
-#define DEBUG 1
-
 typedef enum {
     SCENE_NULL = -1, 
     SCENE_MAIN, 
+    SCENE_SELECT,
     SCENE_TOTAL
 } SceneType;
 
