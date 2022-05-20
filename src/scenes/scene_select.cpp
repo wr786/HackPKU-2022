@@ -49,7 +49,7 @@ public:
             }
 
             // 初始化背景
-            bg = Animation(IMAGE_FOLDER + "bg_select.png", 5, 5, 12);
+            bg = Animation(IMAGE_FOLDER + "bg_select.png", 6, 3, 10);
             windowRec = {0, 0, screenWidth, screenHeight};
             
             fontCaption = LoadFontEx(string(FONT_FOLDER + "bb2180.ttf").c_str(), 96, 0, 0);
@@ -92,7 +92,7 @@ public:
         play_repeat(BGMlst[curMusicIndex]);
 
         bg.nextFrame();
-        rotation+=0.5;
+        rotation-=0.5;
         //====================键盘操控=================
         if(isKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
