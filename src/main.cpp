@@ -11,6 +11,8 @@ using std::string;
 SceneType sceneType = SCENE_SELECT;
 SceneBase* scenes[SCENE_TOTAL];
 
+MusicStatus selectedMusicStatus;
+
 int main()
 {
     /* Register scenes */

@@ -14,7 +14,6 @@
 #define NOTE_OFFSET 100
 #define SCORE_PER_BLOCK 100
 #define MAX_NUM_MUSIC 1
-using namespace boost;
 
 class Player{
 public:
@@ -35,10 +34,11 @@ class Song{
 public:
     vector<Notes> notes;
     vector<float> notes_created;
-    string note_file_name = "test_time.txt";
+    // 先考虑一歌一谱
+    string note_file_name = selectedMusicStatus.name + ".txt";
     // used for create mode
     string note_created_file_name = "test_created.txt";
-    string music_file_name = "test.wav";
+    string music_file_name = selectedMusicStatus.name + ".wav";
     Music back_sound;
 
     void InitMusic()

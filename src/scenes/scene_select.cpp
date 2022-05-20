@@ -7,6 +7,8 @@
 #include <iostream>
 using namespace std;
 
+extern MusicStatus selectedMusicStatus;
+
 class SceneSelect: public SceneBase {
 private:
     bool isEnd = false;    
@@ -17,6 +19,7 @@ private:
     Rectangle windowRec;
     float rotation;
     Font fontCaption;
+    int selectedMusicIndex;
 
     bool isKeyPressed(KeyboardKey key) {
         if(IsKeyPressed(key)) {
@@ -36,7 +39,6 @@ public:
         // 加载音乐列表
         init_music_status_list();
         for(auto& ms: musicStatus_list) {
-            cout << ms.fullName() << endl;
             string path = MUSIC_FOLDER + ms.fullName() + ".wav";
             BGMlst.push_back(LoadMusicStream(path.c_str()));
             path = SONG_ILLUST_FOLDER + ms.fullName() + ".png";
@@ -44,6 +46,7 @@ public:
         }
 
         curMusicIndex = 0;
+        selectedMusicIndex = -1;
         rotation = 0;
 
         // 初始化背景
@@ -87,6 +90,11 @@ public:
         if(isKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
         }
+        if(isKeyPressed(KEY_ENTER)) {
+            isEnd = true;
+            selectedMusicIndex = curMusicIndex;
+            selectedMusicStatus = musicStatus_list[curMusicIndex];
+        }
         if(isKeyPressed(KEY_A) || isKeyPressed(KEY_LEFT)) {
             curMusicIndex = (curMusicIndex + BGMlst.size() - 1) % BGMlst.size();
             PlayMusicStream(BGMlst[curMusicIndex]); 
@@ -105,8 +113,12 @@ public:
         }
         bg.unload();
         UnloadFont(fontCaption);
+        
+        if(selectedMusicIndex != -1) {
+            return SCENE_PLAY;
+        }
 
-        return SCENE_NULL;
+        return SCENE_MAIN;
     }
     bool is_end() {
         if(!isEnd) return false;
