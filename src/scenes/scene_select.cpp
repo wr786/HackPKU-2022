@@ -25,11 +25,12 @@ public:
         init_BGM_play();
 
         // 加载音乐列表
-        init_music_list();
-        for(auto& mname: music_list) {
-            string path = MUSIC_FOLDER + mname;
+        init_music_status_list();
+        for(auto& ms: musicStatus_list) {
+            cout << ms.fullName() << endl;
+            string path = MUSIC_FOLDER + ms.fullName() + ".wav";
             BGMlst.push_back(LoadMusicStream(path.c_str()));
-            path = SONG_ILLUST_FOLDER + mname.substr(0, mname.find_last_of('.')) + ".png";
+            path = SONG_ILLUST_FOLDER + ms.fullName() + ".png";
             illustLst.push_back(LoadTexture(path.c_str()));
         }
 
@@ -43,9 +44,6 @@ public:
         SetTargetFPS(60);
     }
     void draw() {
-        // 播放音乐
-        play_repeat(BGMlst[curMusicIndex]);
-
         BeginDrawing();
             ClearBackground(GRAY);
             // 处理背景
@@ -64,6 +62,9 @@ public:
         EndDrawing();
     }
     void update() {
+        // 播放音乐
+        play_repeat(BGMlst[curMusicIndex]);
+
         bg.nextFrame();
         rotation+=0.5;
         //====================键盘操控=================
