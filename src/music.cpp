@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "fileio.h"
 #include "config.cpp"
+#include "log/log.h"
 #include <string>
 #include <cstdio>
 #include <vector>
@@ -13,7 +14,7 @@ public:
     string authorName;
     MusicStatus() {
         #ifdef DEBUG
-            printf("[Warning] Music Status created without arguments\n");
+            WARNF("Music Status created without arguments");
         #endif
     }
     MusicStatus(string _name, string _authorName): name(_name), authorName(_authorName) {}
@@ -89,7 +90,7 @@ void play_repeat(Music &music){
 }
 void play_stop(Music & music){
     if (IF_BGM_PLAYING == false){
-        printf("Error:the music you stopped hasn't been played!!!\n");
+        ERRORF("the music you stopped hasn't been played!!!");
     }
     else{
         StopMusicStream(music);

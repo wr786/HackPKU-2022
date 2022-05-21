@@ -32,7 +32,7 @@ private:
     }
 public:
     void init() {
-        printf("[debug] calling SceneSelect");
+        DEBUGF("calling SceneSelect");
 
         if(!inited) {
             InitAudioDevice();

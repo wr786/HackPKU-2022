@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "scene.h"
+#include "../log/log.h"
 
 class SceneMain: public SceneBase {
 private:
@@ -7,7 +8,7 @@ private:
     bool gotoSelect = false;
 public:
     void init() {
-        printf("[debug] calling SceneMain");
+        DEBUGF("calling SceneMain");
         //const int screenWidth = 1600;
         //const int screenHeight = 900;
 

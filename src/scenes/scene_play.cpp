@@ -2,6 +2,7 @@
 #include "scene.h"
 #include "player.h"
 #include "animation.h"
+#include "../log/log.h"
 #include "../config.cpp"
 #include "../music.cpp"
 #include <cstdlib>
@@ -74,7 +75,7 @@ public:
     {
         string path = MUSIC_FOLDER;
         path += music_file_name;
-        printf("[debug] music_file_name %s\n", path.c_str());
+        DEBUGF("music_file_name %s\n", path.c_str());
         back_sound = LoadMusicStream(path.c_str());
     }
 
@@ -84,7 +85,7 @@ public:
         path += note_file_name;
         // read from note file and create notes
         ifstream infile(path);
-        printf("[debug] note_file_name %s\n", path.c_str());
+        DEBUGF("note_file_name %s\n", path.c_str());
         float time;
         int id = 0;
         while (!infile.eof())
@@ -161,8 +162,8 @@ public:
                 index = (abs(PLAYER_X - iter->bounds.x) > min_dis) ? index : abs(iter->id);
             }
         }
-        printf("[debug] min_dis %f\n", min_dis);
-        printf("[debug] notes %d has min_dis %f\n", index, min_dis);
+        DEBUGF("min_dis %f", min_dis);
+        DEBUGF("notes %d has min_dis %f", index, min_dis);
         if (min_dis < 100.0f)
         {
             score = 3;
@@ -205,7 +206,7 @@ public:
 
     void init()
     {
-        printf("[debug] calling ScenePlay");
+        DEBUGF("calling ScenePlay");
 
         SetTargetFPS(60);
         InitAudioDevice();

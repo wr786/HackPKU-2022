@@ -6,6 +6,7 @@
 #include "scenes/scene_play.cpp"
 #include "scenes/scene_score.cpp"
 #include <cstdio>
+#include "log/log.h"
 #include <string>
 using std::string;
 
@@ -28,7 +29,7 @@ int main()
 
     InitWindow(g->screenWidth, g->screenHeight, "Unnamed");
 #ifdef DEBUG
-    printf("[debug] init window successful!\n");
+    DEBUGF("init window successful!\n");
 #endif
     g->init();
 
@@ -42,7 +43,7 @@ int main()
         g->update();
         if(g->is_end()){
             #ifdef DEBUG
-            printf("[debug] switching to scene %d\n", sceneType);
+            DEBUGF("switching to scene %d\n", sceneType);
             #endif
             sceneType=g->end();
             g = scenes[sceneType];
