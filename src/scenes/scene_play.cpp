@@ -289,6 +289,14 @@ public:
         if (IsKeyDown(KEY_S))
             song->SaveNotesToFile();
         */
+
+        // check if music end
+        if (GetMusicTimePlayed(song->back_sound) >= GetMusicTimeLength(song->back_sound) - 0.1)
+        {
+            isEnd = true;
+            gotoScore = true;
+        }
+
     }
 
     SceneType end() {
