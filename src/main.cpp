@@ -28,9 +28,9 @@ int main()
     scenes[SCENE_SCORE] = new SceneScore();
     SceneBase* g = scenes[sceneType];
     player = new Player();
-    mode = 0;
+    mode = 1;
 
-    InitWindow(g->screenWidth, g->screenHeight, "Unnamed");
+    InitWindow(g->screenWidth, g->screenHeight, "Beat Stream");
 #ifdef DEBUG
     DEBUGF("init window successful!\n");
 #endif

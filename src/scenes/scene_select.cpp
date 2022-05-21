@@ -7,6 +7,7 @@
 #include <iostream>
 using namespace std;
 
+extern int mode;
 extern MusicStatus selectedMusicStatus;
 
 class SceneSelect: public SceneBase {
@@ -99,6 +100,13 @@ public:
         }
         if(isKeyPressed(KEY_ENTER)) {
             isEnd = true;
+            mode = 1;
+            selectedMusicIndex = curMusicIndex;
+            selectedMusicStatus = musicStatus_list[curMusicIndex];
+        }
+        if(isKeyPressed(KEY_C)) {
+            isEnd = true;
+            mode = 0;
             selectedMusicIndex = curMusicIndex;
             selectedMusicStatus = musicStatus_list[curMusicIndex];
         }
