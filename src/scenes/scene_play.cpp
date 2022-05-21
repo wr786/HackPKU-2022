@@ -16,6 +16,8 @@
 #define SCORE_PER_BLOCK 100
 #define MAX_NUM_MUSIC 1
 #define TIME_OFFSET 4
+#define RAIL_OFFSET 500
+#define RAIL_DISTANCE 200
 
 class Player{
 public:
@@ -71,7 +73,7 @@ public:
             note.time = time;
             note.color = BLACK;
             note.rail = rand()%2;
-            note.bounds = (Rectangle){ NOTE_OFFSET + PLAYER_X + note.time * 60 * NOTE_SPEED, float(note.rail * 120 + 200), NOTE_WIDTH, NOTE_HEIGHT };
+            note.bounds = (Rectangle){ NOTE_OFFSET + PLAYER_X + note.time * 60 * NOTE_SPEED, float(note.rail * RAIL_DISTANCE + RAIL_OFFSET), NOTE_WIDTH, NOTE_HEIGHT };
             notes.push_back(note);
         }
         notes.pop_back();
@@ -127,9 +129,9 @@ public:
         InitAudioDevice();
 
         player = new Player();
-        player->rail = 0;
+        player->rail = 1;
         player->color = RED;
-        player->bounds = (Rectangle){ PLAYER_X, float(player->rail * 120 + 200), PLAYER_WIDTH, PLAYER_HEIGHT };
+        player->bounds = (Rectangle){ PLAYER_X, float(player->rail * RAIL_DISTANCE + RAIL_OFFSET), PLAYER_WIDTH, PLAYER_HEIGHT };
 
         song = new Song();
         song->CreateNotesFromFile();
@@ -162,7 +164,7 @@ public:
             DrawTextureEx(foreground, (Vector2){ scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
             DrawTextureEx(foreground, (Vector2){ foreground.width*2 + scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
 
-            
+
 
             DrawText(TextFormat("%f", score), 20, 20, 40, GRAY);
             DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
@@ -198,7 +200,7 @@ public:
         else if (player->rail < 0) 
             player->rail = 0;
 
-        player->bounds = (Rectangle){ PLAYER_X, float(player->rail * 120 + 200), PLAYER_WIDTH, PLAYER_HEIGHT };
+        player->bounds = (Rectangle){ PLAYER_X, float(player->rail * RAIL_DISTANCE + RAIL_OFFSET), PLAYER_WIDTH, PLAYER_HEIGHT };
 
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
             iter->bounds.x -= NOTE_SPEED;
