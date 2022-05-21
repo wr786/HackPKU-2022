@@ -233,9 +233,9 @@ public:
             playerUpKicking = Animation(IMAGE_FOLDER+"player_upkicking.png", 9, 1, 20);
             playerDownKicking = Animation(IMAGE_FOLDER+"player_downkicking.png", 8, 1, 20);
             textureNote = LoadTexture(string(IMAGE_FOLDER+"soccer.png").c_str());
-            aPerfect = Animation(IMAGE_FOLDER+"score_perfect.png", 3, 1, 8);
-            aGood = Animation(IMAGE_FOLDER+"score_good.png", 3, 1, 8);
-            aMiss = Animation(IMAGE_FOLDER+"score_miss.png", 3, 1, 8);
+            aPerfect = Animation(IMAGE_FOLDER+"score_perfect.png", 3, 1, 12);
+            aGood = Animation(IMAGE_FOLDER+"score_good.png", 3, 1, 12);
+            aMiss = Animation(IMAGE_FOLDER+"score_miss.png", 3, 1, 12);
 
             loaded = true;
         }

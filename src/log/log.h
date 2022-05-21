@@ -17,3 +17,4 @@ using namespace std;
     printf("[error][%s:%d] ",__FILE__,__LINE__); \
     printf(fmt,##__VA_ARGS__); \
     printf("\n")
+
