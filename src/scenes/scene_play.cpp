@@ -9,8 +9,8 @@
 #define PLAYER_X 200
 #define PLAYER_WIDTH 120
 #define PLAYER_HEIGHT 120
-#define NOTE_WIDTH 20
-#define NOTE_HEIGHT 20
+#define NOTE_WIDTH 120
+#define NOTE_HEIGHT 100
 #define NOTE_SPEED 6
 #define NOTE_OFFSET 100
 #define SCORE_PER_BLOCK 100
@@ -145,6 +145,7 @@ private:
     Animation playerRunning;
     Animation playerUpKicking;
     Animation playerDownKicking;
+    Texture2D textureNote;
     
     bool isKeyPressed(KeyboardKey key) {
         if(IsKeyPressed(key)) {
@@ -178,6 +179,7 @@ public:
             playerRunning = Animation(IMAGE_FOLDER+"player_running.png", 6, 1, 20);
             playerUpKicking = Animation(IMAGE_FOLDER+"player_upkicking.png", 9, 1, 20);
             playerDownKicking = Animation(IMAGE_FOLDER+"player_downkicking.png", 8, 1, 20);
+            textureNote = LoadTexture(string(IMAGE_FOLDER+"soccer.png").c_str());
 
             loaded = true;
         }
@@ -214,7 +216,8 @@ public:
             }
 
             for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
-                DrawRectangle(iter->bounds.x, iter->bounds.y, iter->bounds.width, iter->bounds.height, iter->color);
+                DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
+                // DrawRectangle(iter->bounds.x, iter->bounds.y, iter->bounds.width, iter->bounds.height, iter->color);
             }
         EndDrawing();
     }
