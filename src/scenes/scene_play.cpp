@@ -11,7 +11,7 @@
 #define PLAYER_HEIGHT 120
 #define NOTE_WIDTH 120
 #define NOTE_HEIGHT 100
-#define NOTE_SPEED 6
+#define NOTE_SPEED 16
 #define NOTE_OFFSET 100
 #define SCORE_PER_BLOCK 100
 #define MAX_NUM_MUSIC 1
@@ -76,7 +76,7 @@ public:
             note.id = id;
             note.time = time;
             note.color = BLACK;
-            note.rail = rand()%2;
+            note.rail = rand() % 2;
             note.bounds = (Rectangle){ NOTE_OFFSET + PLAYER_X + note.time * 60 * NOTE_SPEED, float(note.rail * RAIL_DISTANCE + RAIL_OFFSET), NOTE_WIDTH, NOTE_HEIGHT };
             notes.push_back(note);
             id += 1;
@@ -101,17 +101,17 @@ public:
             index = abs(time - iter->time) > min_dis ? index : abs(time - iter->id);
         }
         printf("[debug] min_dis %f\n", min_dis);
-        if (min_dis < 0.5f)
+        if (min_dis < 0.2f)
         {
             score = 3.f;
             notes[index].color = GRAY;
         }
-        else if (min_dis > 0.5f && min_dis < 1.0f)
+        else if (min_dis > 0.2f && min_dis < 0.5f)
         {
             score = 2.f;
             notes[index].color = BLUE;
         }
-        else if (min_dis > 1.0f && min_dis < 2.0f)
+        else if (min_dis > 0.5f && min_dis < 2.0f)
         {
             score = 1.f;
             notes[index].color = YELLOW;
