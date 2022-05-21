@@ -144,6 +144,7 @@ private:
     float scrollingFore = 0.0f;
     Animation playerRunning;
     Animation playerUpKicking;
+    Animation playerDownKicking;
     
     bool isKeyPressed(KeyboardKey key) {
         if(IsKeyPressed(key)) {
@@ -176,6 +177,7 @@ public:
             foreground = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_foreground.png").c_str());
             playerRunning = Animation(IMAGE_FOLDER+"player_running.png", 6, 1, 20);
             playerUpKicking = Animation(IMAGE_FOLDER+"player_upkicking.png", 9, 1, 20);
+            playerDownKicking = Animation(IMAGE_FOLDER+"player_downkicking.png", 8, 1, 20);
 
             loaded = true;
         }
@@ -207,6 +209,8 @@ public:
                 DrawTexturePro(playerRunning.getTexture(), playerRunning.getFrame(), {player->bounds.x, player->bounds.y, 200, 120}, {0.f, 0.f}, 0, WHITE);
             } else if (player->status == KICKING_UP) {
                 DrawTexturePro(playerUpKicking.getTexture(), playerUpKicking.getFrame(), {player->bounds.x, player->bounds.y, 120, 200}, {0.f, 0.f}, 0, WHITE);
+            } else if (player->status == KICKING_DOWN) {
+                DrawTexturePro(playerDownKicking.getTexture(), playerDownKicking.getFrame(), {player->bounds.x, player->bounds.y, 200, 120}, {0.f, 0.f}, 0, WHITE);
             }
 
             for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
@@ -225,6 +229,10 @@ public:
                 player->status = RUNNING;
                 player->rail = 1;   // 下落
             }
+        } else if (player->status == KICKING_DOWN) {
+            if(!playerDownKicking.nextFrame()) {
+                player->status = RUNNING;
+            }
         }
         //====================键盘操控=================
         if(IsKeyPressed(KEY_ESCAPE)) {
@@ -242,6 +250,8 @@ public:
         }
         if (isKeyPressed(KEY_J) || isKeyPressed(KEY_K)) {
             player->rail = 1;
+            player->status = KICKING_DOWN;
+            playerDownKicking.curFrame = 0;
             score += song->compute_score(GetTime() - InitTime);
         }
 
