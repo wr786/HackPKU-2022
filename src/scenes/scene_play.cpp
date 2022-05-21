@@ -26,6 +26,14 @@ enum PlayerStatus {
     PLAYER_STATUS_TOTAL
 };
 
+enum NoteStatus {
+    SPAWN = 0,
+    PERFECT = 1,
+    GOOD = 2,
+    MISS = 3,
+    NOTE_STATUS_TOTAL
+};
+
 class Player{
 public:
     int rail;
@@ -41,6 +49,21 @@ public:
     int rail;
     Color color;
     Rectangle bounds;
+    NoteStatus status = SPAWN;
+    bool is_miss() 
+    {
+        if (bounds.x < PLAYER_X)
+            return true;
+        else
+            return false;
+    }
+    bool is_valid() 
+    {
+        if (bounds.x > 0 && (bounds.x + bounds.width) < GetScreenWidth())
+            return true;
+        else
+            return false;
+    }
 };
 
 class Song{
@@ -82,6 +105,10 @@ public:
             id += 1;
         }
         notes.pop_back();
+        for (auto i : notes)
+        {
+            printf("[debug] notes %d x: %f\n", i.id, i.bounds.x);
+        }
     }
 
     void SaveNotesToFile() {
@@ -104,21 +131,17 @@ public:
         if (min_dis < 0.2f)
         {
             score = 3.f;
-            notes[index].color = GRAY;
-        }
-        else if (min_dis > 0.2f && min_dis < 0.5f)
-        {
-            score = 2.f;
-            notes[index].color = BLUE;
+            notes[index].status = PERFECT;
         }
         else if (min_dis > 0.5f && min_dis < 2.0f)
         {
             score = 1.f;
-            notes[index].color = YELLOW;
+            notes[index].status = GOOD;
         }
         else
         {
             score = 0.f;
+            notes[index].status = MISS;
         }
         return score;
     }
@@ -156,6 +179,37 @@ private:
         return false;
     }
 public:
+
+    float compute_score() {
+        float score = 0.f;
+        double min_dis = 999999.0;
+        int index = 0;
+        for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
+            printf("[debug] notes %d x: %f\n", iter->id, iter->bounds.x);
+            min_dis = (abs(PLAYER_X - iter->bounds.x) > min_dis) ? min_dis : abs(PLAYER_X - iter->bounds.x);
+            index = (abs(PLAYER_X - iter->bounds.x) > min_dis) ? index : abs(iter->id);
+        }
+        printf("[debug] min_dis %f\n", min_dis);
+        printf("[debug] notes %d has min_dis %f\n", index, min_dis);
+        if (min_dis < 100.0f)
+        {
+            score = 3.f;
+            song->notes[index].status = PERFECT;
+            printf("[debug] notes %d status %d \n", index, song->notes[index].status );
+        }
+        else if (min_dis > 100.f && min_dis < 200.0f)
+        {
+            score = 1.f;
+            song->notes[index].status = GOOD;
+            printf("[debug] notes %d status %d \n", index, song->notes[index].status );
+        }
+        else
+        {
+            score = 0.f;
+            // song->notes[index].status = MISS;
+        }
+        return score;
+    }
     void init() {
         printf("[debug] calling ScenePlay");
 
@@ -204,7 +258,7 @@ public:
             DrawTextureEx(foreground, (Vector2){ scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
             DrawTextureEx(foreground, (Vector2){ foreground.width*2 + scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
 
-            DrawText(TextFormat("%f", score), 20, 20, 40, GRAY);
+            DrawText(TextFormat("%d", score), 20, 20, 40, GRAY);
 
             // player
             // DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
@@ -217,7 +271,18 @@ public:
             }
 
             for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
-                DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
+                if (iter->status == SPAWN)
+                {
+                    DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
+                }
+                else if (iter->status == MISS)
+                {
+                    DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, GRAY);
+                }      
+                else
+                {
+                    DrawRectangle(iter->bounds.x, iter->bounds.y, iter->bounds.width, iter->bounds.height, iter->color);
+                }          
                 // DrawRectangle(iter->bounds.x, iter->bounds.y, iter->bounds.width, iter->bounds.height, iter->color);
             }
         EndDrawing();
@@ -238,6 +303,7 @@ public:
                 player->status = RUNNING;
             }
         }
+
         //====================键盘操控=================
         if(IsKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
@@ -249,15 +315,17 @@ public:
             player->rail = 0;
             player->status = KICKING_UP;
             playerUpKicking.curFrame = 0;
-            printf("[debug] press key Time: %f\n", GetTime() - InitTime);
-            score += song->compute_score(GetTime() - InitTime);
+            // printf("[debug] press key Time: %f\n", GetTime() - InitTime);
+            // score += song->compute_score(GetTime() - InitTime);
+            score += compute_score();
         }
         if (isKeyPressed(KEY_J) || isKeyPressed(KEY_K)) {
             player->rail = 1;
             player->status = KICKING_DOWN;
             playerDownKicking.curFrame = 0;
-            printf("[debug] press key Time: %f\n", GetTime() - InitTime);
-            score += song->compute_score(GetTime() - InitTime);
+            // printf("[debug] press key Time: %f\n", GetTime() - InitTime);
+            // score += song->compute_score(GetTime() - InitTime);
+            score += compute_score();
         }
 
         // Check player not out of rails
@@ -270,6 +338,10 @@ public:
 
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
             iter->bounds.x -= NOTE_SPEED;
+            if (iter->is_miss() && iter->status != PERFECT && iter->status != GOOD)
+            {
+                iter->status = MISS;  
+            }
         }
 
         // 背景
