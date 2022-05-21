@@ -20,8 +20,9 @@
 #define RAIL_OFFSET 500
 #define RAIL_DISTANCE 200
 
-extern Player* player;
-enum NoteStatus {
+extern Player *player;
+enum NoteStatus
+{
     SPAWN = 0,
     PERFECT = 1,
     GOOD = 2,
@@ -29,7 +30,8 @@ enum NoteStatus {
     NOTE_STATUS_TOTAL
 };
 
-class Notes{
+class Notes
+{
 public:
     int id;
     float time;
@@ -37,14 +39,14 @@ public:
     Color color;
     Rectangle bounds;
     NoteStatus status = SPAWN;
-    bool is_miss() 
+    bool is_miss()
     {
         if (bounds.x < PLAYER_X)
             return true;
         else
             return false;
     }
-    bool is_valid() 
+    bool is_valid()
     {
         if (bounds.x > 0 && (bounds.x + bounds.width) < GetScreenWidth())
             return true;
@@ -53,7 +55,8 @@ public:
     }
 };
 
-class Song{
+class Song
+{
 public:
     vector<Notes> notes;
     vector<float> notes_created;
@@ -64,14 +67,16 @@ public:
     string music_file_name = selectedMusicStatus.fullName() + ".wav";
     Music back_sound;
 
-    void InitMusic() {
+    void InitMusic()
+    {
         string path = MUSIC_FOLDER;
         path += music_file_name;
         printf("[debug] music_file_name %s\n", path.c_str());
         back_sound = LoadMusicStream(path.c_str());
     }
 
-    void CreateNotesFromFile() {
+    void CreateNotesFromFile()
+    {
         string path = NOTES_FOLDER;
         path += note_file_name;
         // read from note file and create notes
@@ -79,7 +84,8 @@ public:
         printf("[debug] note_file_name %s\n", path.c_str());
         float time;
         int id = 0;
-        while(!infile.eof()) {
+        while (!infile.eof())
+        {
             infile >> time;
 
             Notes note;
@@ -87,7 +93,7 @@ public:
             note.time = time;
             note.color = BLACK;
             note.rail = rand() % 2;
-            note.bounds = (Rectangle){ NOTE_OFFSET + PLAYER_X + note.time * 60 * NOTE_SPEED, float(note.rail * RAIL_DISTANCE + RAIL_OFFSET), NOTE_WIDTH, NOTE_HEIGHT };
+            note.bounds = (Rectangle){NOTE_OFFSET + PLAYER_X + note.time * 60 * NOTE_SPEED, float(note.rail * RAIL_DISTANCE + RAIL_OFFSET), NOTE_WIDTH, NOTE_HEIGHT};
             notes.push_back(note);
             id += 1;
         }
@@ -98,23 +104,25 @@ public:
         }
     }
 
-    void SaveNotesToFile() {
+    void SaveNotesToFile()
+    {
         string path = NOTES_FOLDER;
         path += note_created_file_name;
         ofstream outfile(path);
-        for (const auto &e : notes_created) 
+        for (const auto &e : notes_created)
             outfile << e << "\n";
     }
 };
 
-
-class ScenePlay: public SceneBase {
+class ScenePlay : public SceneBase
+{
 
 private:
     bool isEnd = false;
     bool gotoScore = false;
     Song *song;
 
+    bool pause = false;
     float InitTime = 0.f;
 
     bool loaded = false;
@@ -129,20 +137,25 @@ private:
     Animation playerDownKicking;
     Texture2D textureNote;
     Texture2D perfectNote;
-    
-    bool isKeyPressed(KeyboardKey key) {
-        if(IsKeyPressed(key)) {
+
+    bool isKeyPressed(KeyboardKey key)
+    {
+        if (IsKeyPressed(key))
+        {
             play_once(taps[14]);
             return true;
         }
         return false;
     }
+
 public:
-    int compute_score() {
+    int compute_score()
+    {
         int score = 0;
         double min_dis = 999999.0;
         int index = 0;
-        for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
+        for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++)
+        {
             // printf("[debug] notes %d x: %f\n", iter->id, iter->bounds.x);
             if (player->rail == iter->rail)
             {
@@ -190,7 +203,8 @@ public:
         return current_combo;
     }
 
-    void init() {
+    void init()
+    {
         printf("[debug] calling ScenePlay");
 
         SetTargetFPS(60);
@@ -199,107 +213,147 @@ public:
         InitTime = GetTime();
         player->rail = 1;
         player->color = RED;
-        player->bounds = (Rectangle){ PLAYER_X, float(player->rail * RAIL_DISTANCE + RAIL_OFFSET), PLAYER_WIDTH, PLAYER_HEIGHT };
+        player->bounds = (Rectangle){PLAYER_X, float(player->rail * RAIL_DISTANCE + RAIL_OFFSET), PLAYER_WIDTH, PLAYER_HEIGHT};
 
         song = new Song();
         song->CreateNotesFromFile();
         song->InitMusic();
 
-        if(!loaded) {
-            background = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_background.png").c_str());
-            midground = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_midground.png").c_str());
-            foreground = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_foreground.png").c_str());
-            playerRunning = Animation(IMAGE_FOLDER+"player_running.png", 6, 1, 20);
-            playerUpKicking = Animation(IMAGE_FOLDER+"player_upkicking.png", 9, 1, 20);
-            playerDownKicking = Animation(IMAGE_FOLDER+"player_downkicking.png", 8, 1, 20);
-            textureNote = LoadTexture(string(IMAGE_FOLDER+"soccer.png").c_str());
-            perfectNote = LoadTexture(string(IMAGE_FOLDER+"perfectNote.png").c_str());
+        if (!loaded)
+        {
+            background = LoadTexture(string(IMAGE_FOLDER + "cyberpunk_street_background.png").c_str());
+            midground = LoadTexture(string(IMAGE_FOLDER + "cyberpunk_street_midground.png").c_str());
+            foreground = LoadTexture(string(IMAGE_FOLDER + "cyberpunk_street_foreground.png").c_str());
+            playerRunning = Animation(IMAGE_FOLDER + "player_running.png", 6, 1, 20);
+            playerUpKicking = Animation(IMAGE_FOLDER + "player_upkicking.png", 9, 1, 20);
+            playerDownKicking = Animation(IMAGE_FOLDER + "player_downkicking.png", 8, 1, 20);
+            textureNote = LoadTexture(string(IMAGE_FOLDER + "soccer.png").c_str());
+            perfectNote = LoadTexture(string(IMAGE_FOLDER + "perfectNote.png").c_str());
 
             loaded = true;
         }
-        
+
         scrollingBack = 0.0f;
         scrollingMid = 0.0f;
         scrollingFore = 0.0f;
     }
 
-    void draw() {
+    void draw()
+    {
         BeginDrawing();
-            ClearBackground(RAYWHITE);
-            // Draw background image twice
-            // NOTE: Texture is scaled twice its size
-            DrawTextureEx(background, (Vector2){ scrollingBack, 20 }, 0.0f, 5.0f, WHITE);
-            DrawTextureEx(background, (Vector2){ background.width*2 + scrollingBack, 20 }, 0.0f, 5.0f, WHITE);
-            // Draw midground image twice
-            DrawTextureEx(midground, (Vector2){ scrollingMid, 20 }, 0.0f, 5.0f, WHITE);
-            DrawTextureEx(midground, (Vector2){ midground.width*2 + scrollingMid, 20 }, 0.0f, 5.0f, WHITE);
-            // Draw foreground image twice
-            DrawTextureEx(foreground, (Vector2){ scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
-            DrawTextureEx(foreground, (Vector2){ foreground.width*2 + scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
+        ClearBackground(RAYWHITE);
+        // Draw background image twice
+        // NOTE: Texture is scaled twice its size
+        DrawTextureEx(background, (Vector2){scrollingBack, 20}, 0.0f, 5.0f, WHITE);
+        DrawTextureEx(background, (Vector2){background.width * 2 + scrollingBack, 20}, 0.0f, 5.0f, WHITE);
+        // Draw midground image twice
+        DrawTextureEx(midground, (Vector2){scrollingMid, 20}, 0.0f, 5.0f, WHITE);
+        DrawTextureEx(midground, (Vector2){midground.width * 2 + scrollingMid, 20}, 0.0f, 5.0f, WHITE);
+        // Draw foreground image twice
+        DrawTextureEx(foreground, (Vector2){scrollingFore, 70}, 0.0f, 5.0f, WHITE);
+        DrawTextureEx(foreground, (Vector2){foreground.width * 2 + scrollingFore, 70}, 0.0f, 5.0f, WHITE);
 
-            DrawText(TextFormat("Score: %d", player->score), 20, 20, 40, GRAY);
-            DrawText(TextFormat("Perfect: %d", player->total_perfect), 20, 70, 40, GRAY);
-            DrawText(TextFormat("Good: %d", player->total_good), 20, 120, 40, GRAY);
-            DrawText(TextFormat("Miss: %d", player->total_miss), 20, 170, 40, RED);
-            DrawText(TextFormat("Combo: %d", player->combo), 20, 220, 40, GRAY);
+        DrawText(TextFormat("Score: %d", player->score), 20, 20, 40, GRAY);
+        DrawText(TextFormat("Perfect: %d", player->total_perfect), 20, 70, 40, GRAY);
+        DrawText(TextFormat("Good: %d", player->total_good), 20, 120, 40, GRAY);
+        DrawText(TextFormat("Miss: %d", player->total_miss), 20, 170, 40, RED);
+        DrawText(TextFormat("Combo: %d", player->combo), 20, 220, 40, GRAY);
 
-            // player
-            // DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
-            if(player->status == RUNNING) {
-                DrawTexturePro(playerRunning.getTexture(), playerRunning.getFrame(), {player->bounds.x, player->bounds.y, 200, 120}, {0.f, 0.f}, 0, WHITE);
-            } else if (player->status == KICKING_UP) {
-                DrawTexturePro(playerUpKicking.getTexture(), playerUpKicking.getFrame(), {player->bounds.x, player->bounds.y, 120, 200}, {0.f, 0.f}, 0, WHITE);
-            } else if (player->status == KICKING_DOWN) {
-                DrawTexturePro(playerDownKicking.getTexture(), playerDownKicking.getFrame(), {player->bounds.x, player->bounds.y, 200, 120}, {0.f, 0.f}, 0, WHITE);
+        if (pause)
+            DrawText(TextFormat("Pausing."), GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 - 50, 100, WHITE);
+
+        // player
+        // DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
+        if (player->status == RUNNING)
+        {
+            DrawTexturePro(playerRunning.getTexture(), playerRunning.getFrame(), {player->bounds.x, player->bounds.y, 200, 120}, {0.f, 0.f}, 0, WHITE);
+        }
+        else if (player->status == KICKING_UP)
+        {
+            DrawTexturePro(playerUpKicking.getTexture(), playerUpKicking.getFrame(), {player->bounds.x, player->bounds.y, 120, 200}, {0.f, 0.f}, 0, WHITE);
+        }
+        else if (player->status == KICKING_DOWN)
+        {
+            DrawTexturePro(playerDownKicking.getTexture(), playerDownKicking.getFrame(), {player->bounds.x, player->bounds.y, 200, 120}, {0.f, 0.f}, 0, WHITE);
+        }
+
+        for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++)
+        {
+            if (iter->status == SPAWN)
+            {
+                DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
             }
-
-            for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
-                if (iter->status == SPAWN)
-                {
-                    DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
-                }
-                else if (iter->status == MISS)
-                {
-                    DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, GRAY);
-                }      
-                else
-                {
-                    DrawTexturePro(perfectNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
-                }          
+            else if (iter->status == MISS)
+            {
+                DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, GRAY);
             }
+            else
+            {
+                DrawTexturePro(perfectNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
+            }
+        }
         EndDrawing();
     }
 
-    void update() {
+    void update()
+    {
+        if (IsKeyPressed(KEY_P))
+        {
+            if (!pause)
+            {
+                PauseMusicStream(song->back_sound);
+                pause = true;
+            }
+            else
+            {
+                ResumeMusicStream(song->back_sound);
+                pause = false;
+            }
+        }
+        if (pause)
+        {
+            return;
+        }
         PlayMusicStream(song->back_sound);
         UpdateMusicStream(song->back_sound);
-        if(player->status == RUNNING) {
+        if (player->status == RUNNING)
+        {
             playerRunning.nextFrame();
-        } else if (player->status == KICKING_UP) {
-            if(!playerUpKicking.nextFrame()) {
+        }
+        else if (player->status == KICKING_UP)
+        {
+            if (!playerUpKicking.nextFrame())
+            {
                 player->status = RUNNING;
-                player->rail = 1;   // 下落
+                player->rail = 1; // 下落
             }
-        } else if (player->status == KICKING_DOWN) {
-            if(!playerDownKicking.nextFrame()) {
+        }
+        else if (player->status == KICKING_DOWN)
+        {
+            if (!playerDownKicking.nextFrame())
+            {
                 player->status = RUNNING;
             }
         }
 
         //====================键盘操控=================
-        if(IsKeyPressed(KEY_ESCAPE)) {
+        if (IsKeyPressed(KEY_ESCAPE))
+        {
             isEnd = true;
         }
-        if(IsKeyPressed(KEY_Q)) {
+        if (IsKeyPressed(KEY_Q))
+        {
             isEnd = true;
         }
-        if (isKeyPressed(KEY_D) || isKeyPressed(KEY_F)) {
+        if (isKeyPressed(KEY_D) || isKeyPressed(KEY_F))
+        {
             player->rail = 0;
             player->status = KICKING_UP;
             playerUpKicking.curFrame = 0;
             player->score += compute_score();
         }
-        if (isKeyPressed(KEY_J) || isKeyPressed(KEY_K)) {
+        if (isKeyPressed(KEY_J) || isKeyPressed(KEY_K))
+        {
             player->rail = 1;
             player->status = KICKING_DOWN;
             playerDownKicking.curFrame = 0;
@@ -309,20 +363,21 @@ public:
         player->combo = compute_combo();
         player->max_combo = player->combo > player->max_combo ? player->combo : player->max_combo;
         // Check player not out of rails
-        if (player->rail > 1) 
+        if (player->rail > 1)
             player->rail = 1;
-        else if (player->rail < 0) 
+        else if (player->rail < 0)
             player->rail = 0;
 
-        player->bounds = (Rectangle){ PLAYER_X, float(player->rail * RAIL_DISTANCE + RAIL_OFFSET), PLAYER_WIDTH, PLAYER_HEIGHT };
+        player->bounds = (Rectangle){PLAYER_X, float(player->rail * RAIL_DISTANCE + RAIL_OFFSET), PLAYER_WIDTH, PLAYER_HEIGHT};
 
         int miss = 0;
-        for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
+        for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++)
+        {
             iter->bounds.x -= NOTE_SPEED;
             if (iter->is_miss() && iter->status != PERFECT && iter->status != GOOD)
             {
                 miss += 1;
-                iter->status = MISS;  
+                iter->status = MISS;
             }
         }
         player->total_miss = miss;
@@ -332,9 +387,12 @@ public:
         scrollingMid -= 0.5f;
         scrollingFore -= 1.0f;
         // NOTE: Texture is scaled twice its size, so it sould be considered on scrolling
-        if (scrollingBack <= -background.width*2) scrollingBack = 0;
-        if (scrollingMid <= -midground.width*2) scrollingMid = 0;
-        if (scrollingFore <= -foreground.width*2) scrollingFore = 0;
+        if (scrollingBack <= -background.width * 2)
+            scrollingBack = 0;
+        if (scrollingMid <= -midground.width * 2)
+            scrollingMid = 0;
+        if (scrollingFore <= -foreground.width * 2)
+            scrollingFore = 0;
 
         //====================create mode=================
         /*
@@ -351,19 +409,22 @@ public:
             isEnd = true;
             gotoScore = true;
         }
-
     }
 
-    SceneType end() {
-        if(gotoScore) {
+    SceneType end()
+    {
+        if (gotoScore)
+        {
             gotoScore = false;
             return SCENE_SCORE;
         }
         return SCENE_SELECT;
     }
 
-    bool is_end() {
-        if(!isEnd) return false;
+    bool is_end()
+    {
+        if (!isEnd)
+            return false;
         isEnd = false;
         return true;
     }
