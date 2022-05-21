@@ -41,14 +41,11 @@ public:
     int rail;
     Color color;
     Rectangle bounds;
-    int is_valid() { return bounds.x > 0 && (bounds.x + bounds.width) < GetScreenWidth(); }
 };
 
 class Song{
 public:
     vector<Notes> notes;
-    // used for store valid notes (inside the window)
-    map<int, Notes> valid_notes;
     vector<float> notes_created;
     // 先考虑一歌一谱
     string note_file_name = selectedMusicStatus.fullName() + ".txt";
@@ -73,7 +70,6 @@ public:
         float time;
         int id = 0;
         while(!infile.eof()) {
-            id += 1;
             infile >> time;
 
             Notes note;
@@ -83,6 +79,7 @@ public:
             note.rail = rand()%2;
             note.bounds = (Rectangle){ NOTE_OFFSET + PLAYER_X + note.time * 60 * NOTE_SPEED, float(note.rail * RAIL_DISTANCE + RAIL_OFFSET), NOTE_WIDTH, NOTE_HEIGHT };
             notes.push_back(note);
+            id += 1;
         }
         notes.pop_back();
     }
@@ -98,16 +95,31 @@ public:
     float compute_score(double time) {
         float score = 0.f;
         double min_dis = 99.0;
-        for(auto iter = valid_notes.begin(); iter != valid_notes.end(); iter++) {
-            min_dis = abs(time - iter->second.time) > min_dis ? min_dis : abs(time - iter->second.time);
+        int index = 0;
+        for (auto iter = notes.begin(); iter != notes.end(); iter++) {
+            min_dis = abs(time - iter->time) > min_dis ? min_dis : abs(time - iter->time);
+            index = abs(time - iter->time) > min_dis ? index : abs(time - iter->id);
         }
         printf("[debug] min_dis %f\n", min_dis);
-        if ((min_dis - TIME_OFFSET) < 0.5f)
+        if (min_dis < 0.5f)
+        {
             score = 3.f;
-        else if ((min_dis - TIME_OFFSET) > 0.5f && (min_dis - TIME_OFFSET) < 1.0f)
+            notes[index].color = GRAY;
+        }
+        else if (min_dis > 0.5f && min_dis < 1.0f)
+        {
             score = 2.f;
-        else if ((min_dis - TIME_OFFSET) > 1.0f && (min_dis - TIME_OFFSET) < 2.0f)
+            notes[index].color = BLUE;
+        }
+        else if (min_dis > 1.0f && min_dis < 2.0f)
+        {
             score = 1.f;
+            notes[index].color = YELLOW;
+        }
+        else
+        {
+            score = 0.f;
+        }
         return score;
     }
 };
@@ -223,12 +235,6 @@ public:
 
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
             iter->bounds.x -= NOTE_SPEED;
-            if (iter->is_valid()) {
-                song->valid_notes.insert(pair<int, Notes>(iter->id, *iter));
-            }
-            else {
-                song->valid_notes.erase(iter->id);
-            }
         }
 
         // 背景
