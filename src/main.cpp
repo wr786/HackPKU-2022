@@ -1,4 +1,5 @@
 #include "scene.h"
+#include "player.h"
 #include "raylib.h"
 #include "scenes/scene_main.cpp"
 #include "scenes/scene_select.cpp"
@@ -13,6 +14,7 @@ SceneType sceneType = SCENE_SELECT;
 SceneBase* scenes[SCENE_TOTAL];
 
 MusicStatus selectedMusicStatus;
+Player* player;
 
 int main()
 {
@@ -22,6 +24,7 @@ int main()
     scenes[SCENE_PLAY] = new ScenePlay();
     scenes[SCENE_SCORE] = new SceneScore();
     SceneBase* g = scenes[sceneType];
+    player = new Player();
 
     InitWindow(g->screenWidth, g->screenHeight, "Unnamed");
 #ifdef DEBUG

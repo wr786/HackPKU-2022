@@ -1,5 +1,6 @@
 #include "raylib.h"
 #include "scene.h"
+#include "player.h"
 #include "../config.cpp"
 #include <cstdlib>
 #include <fstream>
@@ -19,27 +20,13 @@
 #define RAIL_OFFSET 500
 #define RAIL_DISTANCE 200
 
-enum PlayerStatus {
-    RUNNING = 0,
-    KICKING_UP,
-    KICKING_DOWN,
-    PLAYER_STATUS_TOTAL
-};
-
+extern Player* player;
 enum NoteStatus {
     SPAWN = 0,
     PERFECT = 1,
     GOOD = 2,
     MISS = 3,
     NOTE_STATUS_TOTAL
-};
-
-class Player{
-public:
-    int rail;
-    Color color;
-    Rectangle bounds;
-    PlayerStatus status = RUNNING;
 };
 
 class Notes{
@@ -126,16 +113,9 @@ class ScenePlay: public SceneBase {
 private:
     bool isEnd = false;
     bool gotoScore = false;
-    Player *player;
     Song *song;
 
     float InitTime = 0.f;
-    int score = 0;
-    int total_perfect = 0;
-    int total_good = 0;
-    int total_miss = 0;
-    int combo = 0;
-    int max_combo = 0;
 
     bool loaded = false;
     Texture2D background;
@@ -158,7 +138,6 @@ private:
         return false;
     }
 public:
-
     int compute_score() {
         int score = 0;
         double min_dis = 999999.0;
@@ -174,13 +153,13 @@ public:
         {
             score = 3;
             song->notes[index].status = PERFECT;
-            total_perfect += 1;
+            player->total_perfect += 1;
             // printf("[debug] notes %d status %d \n", index, song->notes[index].status );
         }
         else if (min_dis > 100.f && min_dis < 200.0f)
         {
             score = 1;
-            total_good += 1;
+            player->total_good += 1;
             song->notes[index].status = GOOD;
             // printf("[debug] notes %d status %d \n", index, song->notes[index].status );
         }
@@ -215,8 +194,6 @@ public:
         InitAudioDevice();
 
         InitTime = GetTime();
-
-        player = new Player();
         player->rail = 1;
         player->color = RED;
         player->bounds = (Rectangle){ PLAYER_X, float(player->rail * RAIL_DISTANCE + RAIL_OFFSET), PLAYER_WIDTH, PLAYER_HEIGHT };
@@ -257,11 +234,11 @@ public:
             DrawTextureEx(foreground, (Vector2){ scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
             DrawTextureEx(foreground, (Vector2){ foreground.width*2 + scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
 
-            DrawText(TextFormat("Score: %d", score), 20, 20, 40, GRAY);
-            DrawText(TextFormat("Perfect: %d", total_perfect), 20, 70, 40, GRAY);
-            DrawText(TextFormat("Good: %d", total_good), 20, 120, 40, GRAY);
-            DrawText(TextFormat("Miss: %d", total_miss), 20, 170, 40, RED);
-            DrawText(TextFormat("Combo: %d", combo), 20, 220, 40, GRAY);
+            DrawText(TextFormat("Score: %d", player->score), 20, 20, 40, GRAY);
+            DrawText(TextFormat("Perfect: %d", player->total_perfect), 20, 70, 40, GRAY);
+            DrawText(TextFormat("Good: %d", player->total_good), 20, 120, 40, GRAY);
+            DrawText(TextFormat("Miss: %d", player->total_miss), 20, 170, 40, RED);
+            DrawText(TextFormat("Combo: %d", player->combo), 20, 220, 40, GRAY);
 
             // player
             // DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
@@ -317,17 +294,17 @@ public:
             player->rail = 0;
             player->status = KICKING_UP;
             playerUpKicking.curFrame = 0;
-            score += compute_score();
+            player->score += compute_score();
         }
         if (isKeyPressed(KEY_J) || isKeyPressed(KEY_K)) {
             player->rail = 1;
             player->status = KICKING_DOWN;
             playerDownKicking.curFrame = 0;
-            score += compute_score();
+            player->score += compute_score();
         }
 
-        combo = compute_combo();
-        max_combo = combo > max_combo ? combo : max_combo;
+        player->combo = compute_combo();
+        player->max_combo = player->combo > player->max_combo ? player->combo : player->max_combo;
         // Check player not out of rails
         if (player->rail > 1) 
             player->rail = 1;
@@ -345,7 +322,7 @@ public:
                 iter->status = MISS;  
             }
         }
-        total_miss = miss;
+        player->total_miss = miss;
 
         // 背景
         scrollingBack -= 0.1f;
