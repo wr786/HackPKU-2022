@@ -118,33 +118,6 @@ public:
         for (const auto &e : notes_created) 
             outfile << e << "\n";
     }
-
-    float compute_score(double time) {
-        float score = 0.f;
-        double min_dis = 99.0;
-        int index = 0;
-        for (auto iter = notes.begin(); iter != notes.end(); iter++) {
-            min_dis = abs(time - iter->time) > min_dis ? min_dis : abs(time - iter->time);
-            index = abs(time - iter->time) > min_dis ? index : abs(time - iter->id);
-        }
-        printf("[debug] min_dis %f\n", min_dis);
-        if (min_dis < 0.2f)
-        {
-            score = 3.f;
-            notes[index].status = PERFECT;
-        }
-        else if (min_dis > 0.5f && min_dis < 2.0f)
-        {
-            score = 1.f;
-            notes[index].status = GOOD;
-        }
-        else
-        {
-            score = 0.f;
-            notes[index].status = MISS;
-        }
-        return score;
-    }
 };
 
 
@@ -185,7 +158,7 @@ public:
         double min_dis = 999999.0;
         int index = 0;
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
-            printf("[debug] notes %d x: %f\n", iter->id, iter->bounds.x);
+            // printf("[debug] notes %d x: %f\n", iter->id, iter->bounds.x);
             min_dis = (abs(PLAYER_X - iter->bounds.x) > min_dis) ? min_dis : abs(PLAYER_X - iter->bounds.x);
             index = (abs(PLAYER_X - iter->bounds.x) > min_dis) ? index : abs(iter->id);
         }
@@ -195,13 +168,13 @@ public:
         {
             score = 3.f;
             song->notes[index].status = PERFECT;
-            printf("[debug] notes %d status %d \n", index, song->notes[index].status );
+            // printf("[debug] notes %d status %d \n", index, song->notes[index].status );
         }
         else if (min_dis > 100.f && min_dis < 200.0f)
         {
             score = 1.f;
             song->notes[index].status = GOOD;
-            printf("[debug] notes %d status %d \n", index, song->notes[index].status );
+            // printf("[debug] notes %d status %d \n", index, song->notes[index].status );
         }
         else
         {
@@ -315,16 +288,12 @@ public:
             player->rail = 0;
             player->status = KICKING_UP;
             playerUpKicking.curFrame = 0;
-            // printf("[debug] press key Time: %f\n", GetTime() - InitTime);
-            // score += song->compute_score(GetTime() - InitTime);
             score += compute_score();
         }
         if (isKeyPressed(KEY_J) || isKeyPressed(KEY_K)) {
             player->rail = 1;
             player->status = KICKING_DOWN;
             playerDownKicking.curFrame = 0;
-            // printf("[debug] press key Time: %f\n", GetTime() - InitTime);
-            // score += song->compute_score(GetTime() - InitTime);
             score += compute_score();
         }
 
