@@ -280,11 +280,11 @@ public:
 
         if (mode == 1)
         {
-            DrawText(TextFormat("Score: %d", player->score), 20, 20, 40, GRAY);
-            DrawText(TextFormat("Perfect: %d", player->total_perfect), 20, 70, 40, GRAY);
-            DrawText(TextFormat("Good: %d", player->total_good), 20, 120, 40, GRAY);
-            DrawText(TextFormat("Miss: %d", player->total_miss), 20, 170, 40, RED);
-            DrawText(TextFormat("Combo: %d", player->combo), 20, 220, 40, GRAY);
+            DrawText(TextFormat("Score: %d", player->score), 20, 20, 40, PURPLE);
+            DrawText(TextFormat("Perfect: %d", player->total_perfect), 20, 70, 40, PINK);
+            DrawText(TextFormat("Good: %d", player->total_good), 20, 120, 40, GREEN);
+            DrawText(TextFormat("Miss: %d", player->total_miss), 20, 170, 40, GRAY);
+            DrawText(TextFormat("Combo: %d", player->combo), screenWidth-400, 20, 60, RED);
 
             for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++)
             {
