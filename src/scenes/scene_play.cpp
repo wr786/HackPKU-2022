@@ -331,6 +331,10 @@ public:
                 }
             }
         }
+        if (mode == 0)
+        {
+            DrawText(TextFormat("Time: %.2f", GetMusicTimePlayed(song->back_sound)), 20, 20, 40, PURPLE);
+        }
         EndDrawing();
     }
 
