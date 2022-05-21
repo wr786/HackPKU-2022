@@ -85,19 +85,19 @@ public:
             DrawTriangle({615, 450}, {785, 450}, {700, 365}, Fade(WHITE, 0.3f));
             DrawTriangle({615, 450}, {700, 535}, {785, 450}, Fade(WHITE, 0.3f));
             if(score <= 20) {
-                DrawTextEx(font_caption, TextFormat("D"), {680, 420}, 80, 0, GREEN);
+                DrawTextEx(font_caption, TextFormat("D"), {678, 418}, 80, 0, GREEN);
             } else if(score <= 40) {
                 DrawTextEx(font_caption, TextFormat("C"), {680, 420}, 80, 0, RED);
             } else if(score <= 60) {
-                DrawTextEx(font_caption, TextFormat("B"), {680, 420}, 150, 0, YELLOW);
+                DrawTextEx(font_caption, TextFormat("B"), {661, 381}, 150, 0, YELLOW);
             } else if(score <= 80) {
-                DrawTextEx(font_caption, TextFormat("A"), {680, 420}, 150, 0, ORANGE);
+                DrawTextEx(font_caption, TextFormat("A"), {658, 372}, 150, 0, ORANGE);
             } else if(score <= 100) {
-                DrawTextEx(font_caption, TextFormat("S"), {680, 420}, 150, 0, PURPLE);
-            } else if(score < 120) {
-                DrawTextEx(font_caption, TextFormat("V"), {680, 420}, 150, 0, BLUE);
-            } else if(score >= 140) {
-                DrawTextEx(font_caption, TextFormat("P"), {680, 420}, 150, 0, PINK);
+                DrawTextEx(font_caption, TextFormat("S"), {662, 374}, 150, 0, PURPLE);
+            } else if(score <= 120) {
+                DrawTextEx(font_caption, TextFormat("V"), {658, 382}, 150, 0, BLUE);
+            } else if(score > 120) {
+                DrawTextEx(font_caption, TextFormat("P"), {663, 376}, 150, 0, PINK);
             }
 
             
@@ -108,17 +108,17 @@ public:
             // // DrawTextEx(font_caption, TextFormat("Max Combo: %d", scoreboard.maxCombo), {1060, 433}, 40, 0, WHITE);
             
             // 画各note个数
-            float base = 550;
+           float base = 550;
             float interval = 50;
             float basex = 1250;
+            float acc = float(total_good + total_perfect)/float(total_miss + total_good + total_perfect) * 100;
             DrawRectangle(1150, 520, 800, 300, Fade(BLACK, 0.5f));
             DrawTriangle({1050, 670}, {1150, 820}, {1150, 520}, Fade(BLACK, 0.5f));
-            Font font_caption2 = LoadFontEx("../resource/font/No.022-Sounso-Tiger-2.ttf", 96, 0, 0);
             DrawTextEx(font_caption2, TextFormat("Perfect: %04d", total_perfect ), {basex, base}, 40, 0, PURPLE);
             DrawTextEx(font_caption2, TextFormat("Good: %04d", total_good ), {basex, base + interval}, 40, 0, PURPLE);
             DrawTextEx(font_caption2, TextFormat("Miss: %04d", total_miss ), {basex, base + interval * 2}, 40, 0, PURPLE);
             DrawTextEx(font_caption2, TextFormat("Max combo: %04d", max_combo ), {basex, base + interval * 3}, 40, 0, PURPLE);
-            DrawTextEx(font_caption2, TextFormat("ACC:%.2f%%", (total_good + total_perfect)/(total_miss + total_good + total_perfect) * 100), {basex, base + interval * 4 + 10}, 60, 0, WHITE);
+            DrawTextEx(font_caption2, TextFormat("ACC: %.2f%%", acc), {basex, base + interval * 4 + 10}, 60, 0, WHITE);
 
         EndDrawing();
 
