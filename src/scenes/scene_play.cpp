@@ -144,8 +144,11 @@ public:
         int index = 0;
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
             // printf("[debug] notes %d x: %f\n", iter->id, iter->bounds.x);
-            min_dis = (abs(PLAYER_X - iter->bounds.x) > min_dis) ? min_dis : abs(PLAYER_X - iter->bounds.x);
-            index = (abs(PLAYER_X - iter->bounds.x) > min_dis) ? index : abs(iter->id);
+            if (player->rail == iter->rail)
+            {
+                min_dis = (abs(PLAYER_X - iter->bounds.x) > min_dis) ? min_dis : abs(PLAYER_X - iter->bounds.x);
+                index = (abs(PLAYER_X - iter->bounds.x) > min_dis) ? index : abs(iter->id);
+            }
         }
         printf("[debug] min_dis %f\n", min_dis);
         printf("[debug] notes %d has min_dis %f\n", index, min_dis);
