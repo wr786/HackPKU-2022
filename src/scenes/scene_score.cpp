@@ -132,7 +132,7 @@ public:
     SceneType end() {
         UnloadTexture(texture_background);
         UnloadFont(font_caption);
-        return SCENE_SCORE;
+        return SCENE_SELECT;
     }
 
 };
