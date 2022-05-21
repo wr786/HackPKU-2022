@@ -148,6 +148,7 @@ private:
     Animation playerUpKicking;
     Animation playerDownKicking;
     Texture2D textureNote;
+    Texture2D perfectNote;
     
     bool isKeyPressed(KeyboardKey key) {
         if(IsKeyPressed(key)) {
@@ -232,6 +233,7 @@ public:
             playerUpKicking = Animation(IMAGE_FOLDER+"player_upkicking.png", 9, 1, 20);
             playerDownKicking = Animation(IMAGE_FOLDER+"player_downkicking.png", 8, 1, 20);
             textureNote = LoadTexture(string(IMAGE_FOLDER+"soccer.png").c_str());
+            perfectNote = LoadTexture(string(IMAGE_FOLDER+"perfectNote.png").c_str());
 
             loaded = true;
         }
@@ -282,7 +284,7 @@ public:
                 }      
                 else
                 {
-                    DrawRectangle(iter->bounds.x, iter->bounds.y, iter->bounds.width, iter->bounds.height, iter->color);
+                    DrawTexturePro(perfectNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
                 }          
             }
         EndDrawing();
