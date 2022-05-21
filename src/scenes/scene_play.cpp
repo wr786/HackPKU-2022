@@ -7,8 +7,8 @@
 #include <vector>
 #include <map>
 #define PLAYER_X 200
-#define PLAYER_WIDTH 40
-#define PLAYER_HEIGHT 40
+#define PLAYER_WIDTH 120
+#define PLAYER_HEIGHT 120
 #define NOTE_WIDTH 20
 #define NOTE_HEIGHT 20
 #define NOTE_SPEED 6
@@ -19,11 +19,19 @@
 #define RAIL_OFFSET 500
 #define RAIL_DISTANCE 200
 
+enum PlayerStatus {
+    RUNNING = 0,
+    KICKING_UP,
+    KICKING_DOWN,
+    PLAYER_STATUS_TOTAL
+};
+
 class Player{
 public:
     int rail;
     Color color;
     Rectangle bounds;
+    PlayerStatus status = RUNNING;
 };
 
 class Notes{
@@ -120,6 +128,7 @@ private:
     float scrollingBack = 0.0f;
     float scrollingMid = 0.0f;
     float scrollingFore = 0.0f;
+    Animation playerRunning;
     
 public:
     void init() {
@@ -141,6 +150,7 @@ public:
             background = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_background.png").c_str());
             midground = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_midground.png").c_str());
             foreground = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_foreground.png").c_str());
+            playerRunning = Animation(IMAGE_FOLDER+"player_running.png", 6, 1, 20);
 
             loaded = true;
         }
@@ -164,10 +174,13 @@ public:
             DrawTextureEx(foreground, (Vector2){ scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
             DrawTextureEx(foreground, (Vector2){ foreground.width*2 + scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
 
-
-
             DrawText(TextFormat("%f", score), 20, 20, 40, GRAY);
-            DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
+
+            // player
+            // DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
+            DrawTexturePro(playerRunning.getTexture(), playerRunning.getFrame(), player->bounds, {0.f, 0.f}, 0, WHITE);
+
+
             for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
                 DrawRectangle(iter->bounds.x, iter->bounds.y, iter->bounds.width, iter->bounds.height, iter->color);
             }
@@ -177,6 +190,7 @@ public:
     void update() {
         PlayMusicStream(song->back_sound);
         UpdateMusicStream(song->back_sound);
+        playerRunning.nextFrame();
         //====================键盘操控=================
         if(IsKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
