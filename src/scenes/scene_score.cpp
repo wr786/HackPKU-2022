@@ -44,7 +44,7 @@ public:
             max_combo = 10;
         }
         font_caption = LoadFontEx("../resource/font/bb2180.ttf", 96, 0, 0);
-        font_caption2 = LoadFontEx("../resource/font/No.022-Sounso-Tiger-2.ttf", 96, 0, 0);
+        font_caption2 = LoadFontEx("../resource/font/Cinzel-Black.ttf", 96, 0, 0);
         string path = IMAGE_FOLDER + songName + ".png";
         texture_background = LoadTexture("../resource/image/bg_scenescore.png");
         SetTargetFPS(60);
