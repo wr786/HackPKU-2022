@@ -1,3 +1,4 @@
+#pragma once
 #include "raylib.h"
 #include "fileio.h"
 #include "config.cpp"

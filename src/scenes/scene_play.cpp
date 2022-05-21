@@ -1,7 +1,9 @@
 #include "raylib.h"
 #include "scene.h"
 #include "player.h"
+#include "animation.h"
 #include "../config.cpp"
+#include "../music.cpp"
 #include <cstdlib>
 #include <fstream>
 #include <string>
@@ -21,6 +23,7 @@
 #define RAIL_DISTANCE 200
 
 extern Player *player;
+extern MusicStatus selectedMusicStatus;
 enum NoteStatus
 {
     SPAWN = 0,
