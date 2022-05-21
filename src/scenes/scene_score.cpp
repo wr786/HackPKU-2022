@@ -42,14 +42,6 @@ public:
             DrawRectangle(1000, 60, 800, 100, Fade(BLACK, 0.5f));
             DrawTriangle({900, 110}, {1000, 160}, {1000, 60}, Fade(BLACK, 0.5f));
             DrawTextEx(font_caption, TextFormat("%s", songName.c_str()), {1200, 65}, 90, 0, WHITE);
-            // // // // 中心边框
-            // DrawRectangle(0, 250, 1600, 400, Fade(BLACK, 0.6f));
-            // DrawRectangle(0, 350, 1600, 200, Fade(WHITE, 0.4f));
-            // // // // 光栅化 
-            // // DrawTriangle({500, 320}, {370, 450}, {630, 450}, Fade(WHITE, 1.f));
-            // // DrawTriangle({500, 580}, {630, 450}, {370, 450}, Fade(WHITE, 1.f));
-            // // DrawTriangle({500, 330}, {380, 450}, {620, 450}, Fade(BLACK, 1.f));
-            // // DrawTriangle({500, 570}, {620, 450}, {380, 450}, Fade(BLACK, 1.f));
 
             // 画分数
             DrawRectangle(700, 400, 800, 100, Fade(BLACK, 0.5f));
