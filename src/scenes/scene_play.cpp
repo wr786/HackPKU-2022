@@ -23,6 +23,7 @@
 #define RAIL_OFFSET 500
 #define RAIL_DISTANCE 200
 
+extern int mode;
 extern Player *player;
 extern MusicStatus selectedMusicStatus;
 enum NoteStatus
@@ -63,16 +64,22 @@ class Song
 {
 public:
     vector<Notes> notes;
-    vector<float> notes_created;
+    ofstream outfile;
+
     // 先考虑一歌一谱
     string note_file_name = selectedMusicStatus.fullName() + ".txt";
     // used for create mode
-    string note_created_file_name = "test_created.txt";
+    string note_created_file_name = selectedMusicStatus.fullName() + "_created.txt";
     string music_file_name = selectedMusicStatus.fullName() + ".wav";
     Music back_sound;
 
     void InitMusic()
     {
+        // used for create mode
+        string create_path = NOTES_FOLDER;
+        create_path += note_created_file_name;
+        outfile.open(create_path, std::ios_base::app);
+
         string path = MUSIC_FOLDER;
         path += music_file_name;
         DEBUGF("music_file_name %s\n", path.c_str());
@@ -104,13 +111,11 @@ public:
         notes.pop_back();
     }
 
-    void SaveNotesToFile()
+    void SaveNotesToFile(float time)
     {
-        string path = NOTES_FOLDER;
-        path += note_created_file_name;
-        ofstream outfile(path);
-        for (const auto &e : notes_created)
-            outfile << e << "\n";
+        if (!outfile.is_open())
+            ERRORF("outfile is not open\n");
+        outfile << time << "\n";
     }
 };
 
@@ -255,15 +260,6 @@ public:
         DrawTextureEx(foreground, (Vector2){scrollingFore, 70}, 0.0f, 5.0f, WHITE);
         DrawTextureEx(foreground, (Vector2){foreground.width * 2 + scrollingFore, 70}, 0.0f, 5.0f, WHITE);
 
-        DrawText(TextFormat("Score: %d", player->score), 20, 20, 40, GRAY);
-        DrawText(TextFormat("Perfect: %d", player->total_perfect), 20, 70, 40, GRAY);
-        DrawText(TextFormat("Good: %d", player->total_good), 20, 120, 40, GRAY);
-        DrawText(TextFormat("Miss: %d", player->total_miss), 20, 170, 40, RED);
-        DrawText(TextFormat("Combo: %d", player->combo), 20, 220, 40, GRAY);
-
-        if (pause)
-            DrawText(TextFormat("Pausing."), GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 - 50, 100, WHITE);
-
         // player
         // DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
         if (player->status == RUNNING)
@@ -279,22 +275,34 @@ public:
             DrawTexturePro(playerDownKicking.getTexture(), playerDownKicking.getFrame(), {player->bounds.x, player->bounds.y, 200, 120}, {0.f, 0.f}, 0, WHITE);
         }
 
-        for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++)
+        if (pause)
+            DrawText(TextFormat("Pausing."), GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 - 50, 100, WHITE);
+
+        if (mode == 1)
         {
-            if (iter->status == SPAWN)
+            DrawText(TextFormat("Score: %d", player->score), 20, 20, 40, GRAY);
+            DrawText(TextFormat("Perfect: %d", player->total_perfect), 20, 70, 40, GRAY);
+            DrawText(TextFormat("Good: %d", player->total_good), 20, 120, 40, GRAY);
+            DrawText(TextFormat("Miss: %d", player->total_miss), 20, 170, 40, RED);
+            DrawText(TextFormat("Combo: %d", player->combo), 20, 220, 40, GRAY);
+
+            for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++)
             {
-                DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
-            }
-            else if (iter->status == MISS)
-            {
-                DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, GRAY);
-            }
-            else
-            {
-                // DrawTexturePro(perfectNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
-            }
-            for(auto& effect: effects) {
-                DrawTexturePro(effect.getTexture(), effect.getFrame(), {player->bounds.x, player->bounds.y-100, effect.getFrame().width, effect.getFrame().height}, {0.f, 0.f}, 0, WHITE);
+                if (iter->status == SPAWN)
+                {
+                    DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
+                }
+                else if (iter->status == MISS)
+                {
+                    DrawTexturePro(textureNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, GRAY);
+                }
+                else
+                {
+                    // DrawTexturePro(perfectNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
+                }
+                for(auto& effect: effects) {
+                    DrawTexturePro(effect.getTexture(), effect.getFrame(), {player->bounds.x, player->bounds.y-100, effect.getFrame().width, effect.getFrame().height}, {0.f, 0.f}, 0, WHITE);
+                }
             }
         }
         EndDrawing();
@@ -349,7 +357,6 @@ public:
             }
         }
 
-        //====================键盘操控=================
         if (IsKeyPressed(KEY_ESCAPE))
         {
             isEnd = true;
@@ -358,46 +365,51 @@ public:
         {
             isEnd = true;
         }
+
         if (isKeyPressed(KEY_D) || isKeyPressed(KEY_F))
         {
             player->rail = 0;
             player->status = KICKING_UP;
             playerUpKicking.curFrame = 0;
-            player->score += compute_score();
+            if (mode == 1) player->score += compute_score();
         }
         if (isKeyPressed(KEY_J) || isKeyPressed(KEY_K))
         {
             player->rail = 1;
             player->status = KICKING_DOWN;
             playerDownKicking.curFrame = 0;
-            player->score += compute_score();
+            if (mode == 1) player->score += compute_score();
         }
 
-        player->combo = compute_combo();
-        player->max_combo = player->combo > player->max_combo ? player->combo : player->max_combo;
         // Check player not out of rails
         if (player->rail > 1)
             player->rail = 1;
         else if (player->rail < 0)
             player->rail = 0;
 
-        player->bounds = (Rectangle){PLAYER_X, float(player->rail * RAIL_DISTANCE + RAIL_OFFSET), PLAYER_WIDTH, PLAYER_HEIGHT};
-
-        int miss = 0;
-        for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++)
+        //====================play mode=================
+        if (mode == 1)
         {
-            iter->bounds.x -= NOTE_SPEED;
-            if (iter->is_miss() && iter->status != PERFECT && iter->status != GOOD)
-            {
-                miss += 1;
-                if (iter->status != MISS) { // 第一次计算时
-                    effects.push_back(aMiss);
-                }
-                iter->status = MISS;  
-            }
-        }
-        player->total_miss = miss;
+            player->combo = compute_combo();
+            player->max_combo = player->combo > player->max_combo ? player->combo : player->max_combo;
 
+            int miss = 0;
+            for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++)
+            {
+                iter->bounds.x -= NOTE_SPEED;
+                if (iter->is_miss() && iter->status != PERFECT && iter->status != GOOD)
+                {
+                    miss += 1;
+                    if (iter->status != MISS) { // 第一次计算时
+                        effects.push_back(aMiss);
+                    }
+                    iter->status = MISS;  
+                }
+            }
+            player->total_miss = miss;
+        }
+        player->bounds = (Rectangle){PLAYER_X, float(player->rail * RAIL_DISTANCE + RAIL_OFFSET), PLAYER_WIDTH, PLAYER_HEIGHT};
+        
         // 背景
         scrollingBack -= 0.1f;
         scrollingMid -= 0.5f;
@@ -410,15 +422,14 @@ public:
         if (scrollingFore <= -foreground.width * 2)
             scrollingFore = 0;
 
+
         //====================create mode=================
-        /*
-        if (IsKeyDown(KEY_D) || IsKeyDown(KEY_F) || IsKeyDown(KEY_J) || IsKeyDown(KEY_K))
-            song->notes_created.push_back(GetTime());
-
-        if (IsKeyDown(KEY_S))
-            song->SaveNotesToFile();
-        */
-
+        if (mode == 0)
+        {
+            if (IsKeyDown(KEY_D) || IsKeyDown(KEY_F) || IsKeyDown(KEY_J) || IsKeyDown(KEY_K))
+                song->SaveNotesToFile(GetTime());
+        }
+        
         // check if music end
         if (GetMusicTimePlayed(song->back_sound) >= GetMusicTimeLength(song->back_sound) - 0.1)
         {
@@ -431,6 +442,7 @@ public:
     {
         if (gotoScore)
         {
+            song->outfile.close();
             gotoScore = false;
             return SCENE_SCORE;
         }

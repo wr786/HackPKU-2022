@@ -17,6 +17,8 @@ SceneBase* scenes[SCENE_TOTAL];
 MusicStatus selectedMusicStatus;
 Player* player;
 
+int mode;
+
 int main()
 {
     /* Register scenes */
@@ -26,6 +28,7 @@ int main()
     scenes[SCENE_SCORE] = new SceneScore();
     SceneBase* g = scenes[sceneType];
     player = new Player();
+    mode = 0;
 
     InitWindow(g->screenWidth, g->screenHeight, "Unnamed");
 #ifdef DEBUG
