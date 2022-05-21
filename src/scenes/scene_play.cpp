@@ -131,6 +131,11 @@ private:
 
     float InitTime = 0.f;
     int score = 0;
+    int total_perfect = 0;
+    int total_good = 0;
+    int total_miss = 0;
+    int combo = 0;
+    int max_combo = 0;
 
     bool loaded = false;
     Texture2D background;
@@ -168,11 +173,13 @@ public:
         {
             score = 3;
             song->notes[index].status = PERFECT;
+            total_perfect += 1;
             // printf("[debug] notes %d status %d \n", index, song->notes[index].status );
         }
         else if (min_dis > 100.f && min_dis < 200.0f)
         {
             score = 1;
+            total_good += 1;
             song->notes[index].status = GOOD;
             // printf("[debug] notes %d status %d \n", index, song->notes[index].status );
         }
@@ -181,8 +188,25 @@ public:
             score = 0;
             // song->notes[index].status = MISS;
         }
+        // max_combo = max_combo > combo ? max_combo : combo;
         return score;
     }
+
+    int compute_combo()
+    {
+        int current_combo = 0;
+        for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++)
+        {
+            if (iter->status == PERFECT || iter->status == GOOD)
+                current_combo += 1;
+            else if (iter->status == MISS)
+                current_combo = 0;
+            else if (iter->status == SPAWN)
+                break;
+        }
+        return current_combo;
+    }
+
     void init() {
         printf("[debug] calling ScenePlay");
 
@@ -231,7 +255,11 @@ public:
             DrawTextureEx(foreground, (Vector2){ scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
             DrawTextureEx(foreground, (Vector2){ foreground.width*2 + scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
 
-            DrawText(TextFormat("%d", score), 20, 20, 40, GRAY);
+            DrawText(TextFormat("Score: %d", score), 20, 20, 40, GRAY);
+            DrawText(TextFormat("Perfect: %d", total_perfect), 20, 70, 40, GRAY);
+            DrawText(TextFormat("Good: %d", total_good), 20, 120, 40, GRAY);
+            DrawText(TextFormat("Miss: %d", total_miss), 20, 170, 40, RED);
+            DrawText(TextFormat("Combo: %d", combo), 20, 220, 40, GRAY);
 
             // player
             // DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
@@ -256,7 +284,6 @@ public:
                 {
                     DrawRectangle(iter->bounds.x, iter->bounds.y, iter->bounds.width, iter->bounds.height, iter->color);
                 }          
-                // DrawRectangle(iter->bounds.x, iter->bounds.y, iter->bounds.width, iter->bounds.height, iter->color);
             }
         EndDrawing();
     }
@@ -297,6 +324,8 @@ public:
             score += compute_score();
         }
 
+        combo = compute_combo();
+        max_combo = combo > max_combo ? combo : max_combo;
         // Check player not out of rails
         if (player->rail > 1) 
             player->rail = 1;
@@ -305,13 +334,16 @@ public:
 
         player->bounds = (Rectangle){ PLAYER_X, float(player->rail * RAIL_DISTANCE + RAIL_OFFSET), PLAYER_WIDTH, PLAYER_HEIGHT };
 
+        int miss = 0;
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
             iter->bounds.x -= NOTE_SPEED;
             if (iter->is_miss() && iter->status != PERFECT && iter->status != GOOD)
             {
+                miss += 1;
                 iter->status = MISS;  
             }
         }
+        total_miss = miss;
 
         // 背景
         scrollingBack -= 0.1f;
