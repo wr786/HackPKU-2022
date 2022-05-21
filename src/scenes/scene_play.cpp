@@ -98,10 +98,6 @@ public:
             id += 1;
         }
         notes.pop_back();
-        for (auto i : notes)
-        {
-            printf("[debug] notes %d x: %f\n", i.id, i.bounds.x);
-        }
     }
 
     void SaveNotesToFile()
