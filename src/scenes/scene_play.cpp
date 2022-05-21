@@ -249,13 +249,14 @@ public:
             player->rail = 0;
             player->status = KICKING_UP;
             playerUpKicking.curFrame = 0;
-            printf("[debug] press key Time: %f\n", GetTime());
+            printf("[debug] press key Time: %f\n", GetTime() - InitTime);
             score += song->compute_score(GetTime() - InitTime);
         }
         if (isKeyPressed(KEY_J) || isKeyPressed(KEY_K)) {
             player->rail = 1;
             player->status = KICKING_DOWN;
             playerDownKicking.curFrame = 0;
+            printf("[debug] press key Time: %f\n", GetTime() - InitTime);
             score += song->compute_score(GetTime() - InitTime);
         }
 
@@ -295,7 +296,7 @@ public:
             gotoScore = false;
             return SCENE_SCORE;
         }
-        return SCENE_NULL;
+        return SCENE_SELECT;
     }
 
     bool is_end() {
