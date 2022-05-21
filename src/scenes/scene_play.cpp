@@ -110,6 +110,14 @@ private:
     Player *player;
     Song *song;
     float score = 0.f;
+
+    bool loaded = false;
+    Texture2D background;
+    Texture2D midground;
+    Texture2D foreground;
+    float scrollingBack = 0.0f;
+    float scrollingMid = 0.0f;
+    float scrollingFore = 0.0f;
     
 public:
     void init() {
@@ -126,11 +134,36 @@ public:
         song = new Song();
         song->CreateNotesFromFile();
         song->InitMusic();
+
+        if(!loaded) {
+            background = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_background.png").c_str());
+            midground = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_midground.png").c_str());
+            foreground = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_foreground.png").c_str());
+
+            loaded = true;
+        }
+        
+        scrollingBack = 0.0f;
+        scrollingMid = 0.0f;
+        scrollingFore = 0.0f;
     }
 
     void draw() {
         BeginDrawing();
             ClearBackground(RAYWHITE);
+            // Draw background image twice
+            // NOTE: Texture is scaled twice its size
+            DrawTextureEx(background, (Vector2){ scrollingBack, 20 }, 0.0f, 5.0f, WHITE);
+            DrawTextureEx(background, (Vector2){ background.width*2 + scrollingBack, 20 }, 0.0f, 5.0f, WHITE);
+            // Draw midground image twice
+            DrawTextureEx(midground, (Vector2){ scrollingMid, 20 }, 0.0f, 5.0f, WHITE);
+            DrawTextureEx(midground, (Vector2){ midground.width*2 + scrollingMid, 20 }, 0.0f, 5.0f, WHITE);
+            // Draw foreground image twice
+            DrawTextureEx(foreground, (Vector2){ scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
+            DrawTextureEx(foreground, (Vector2){ foreground.width*2 + scrollingFore, 70 }, 0.0f, 5.0f, WHITE);
+
+            
+
             DrawText(TextFormat("%f", score), 20, 20, 40, GRAY);
             DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
             for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
@@ -176,6 +209,15 @@ public:
                 song->valid_notes.erase(iter->id);
             }
         }
+
+        // 背景
+        scrollingBack -= 0.1f;
+        scrollingMid -= 0.5f;
+        scrollingFore -= 1.0f;
+        // NOTE: Texture is scaled twice its size, so it sould be considered on scrolling
+        if (scrollingBack <= -background.width*2) scrollingBack = 0;
+        if (scrollingMid <= -midground.width*2) scrollingMid = 0;
+        if (scrollingFore <= -foreground.width*2) scrollingFore = 0;
 
         //====================create mode=================
         /*
