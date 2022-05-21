@@ -119,6 +119,8 @@ private:
     bool isEnd = false;
     Player *player;
     Song *song;
+
+    float InitTime = 0.f;
     float score = 0.f;
 
     bool loaded = false;
@@ -129,6 +131,7 @@ private:
     float scrollingMid = 0.0f;
     float scrollingFore = 0.0f;
     Animation playerRunning;
+
     
 public:
     void init() {
@@ -136,6 +139,8 @@ public:
 
         SetTargetFPS(60);
         InitAudioDevice();
+
+        InitTime = GetTime();
 
         player = new Player();
         player->rail = 1;
@@ -201,11 +206,11 @@ public:
         if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_F)) {
             player->rail -= 1;
             printf("[debug] press key Time: %f\n", GetTime());
-            score += song->compute_score(GetTime());
+            score += song->compute_score(GetTime() - InitTime);
         }
         if (IsKeyPressed(KEY_J) || IsKeyPressed(KEY_K)) {
             player->rail += 1;
-            score += song->compute_score(GetTime());
+            score += song->compute_score(GetTime() - InitTime);
         }
 
         // Check player not out of rails
