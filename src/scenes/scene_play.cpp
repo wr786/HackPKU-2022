@@ -156,7 +156,7 @@ public:
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++)
         {
             // printf("[debug] notes %d x: %f\n", iter->id, iter->bounds.x);
-            if (player->rail == iter->rail)
+            if (player->rail == iter->rail && iter->status == SPAWN)
             {
                 min_dis = (abs(PLAYER_X - iter->bounds.x) > min_dis) ? min_dis : abs(PLAYER_X - iter->bounds.x);
                 index = (abs(PLAYER_X - iter->bounds.x) > min_dis) ? index : abs(iter->id);
