@@ -129,7 +129,15 @@ private:
     float scrollingMid = 0.0f;
     float scrollingFore = 0.0f;
     Animation playerRunning;
+    Animation playerUpKicking;
     
+    bool isKeyPressed(KeyboardKey key) {
+        if(IsKeyPressed(key)) {
+            play_once(taps[14]);
+            return true;
+        }
+        return false;
+    }
 public:
     void init() {
         printf("[debug] calling ScenePlay");
@@ -151,6 +159,7 @@ public:
             midground = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_midground.png").c_str());
             foreground = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_foreground.png").c_str());
             playerRunning = Animation(IMAGE_FOLDER+"player_running.png", 6, 1, 20);
+            playerUpKicking = Animation(IMAGE_FOLDER+"player_upkicking.png", 9, 1, 20);
 
             loaded = true;
         }
@@ -178,8 +187,11 @@ public:
 
             // player
             // DrawRectangle(player->bounds.x, player->bounds.y, PLAYER_WIDTH, PLAYER_HEIGHT, player->color);
-            DrawTexturePro(playerRunning.getTexture(), playerRunning.getFrame(), player->bounds, {0.f, 0.f}, 0, WHITE);
-
+            if(player->status == RUNNING) {
+                DrawTexturePro(playerRunning.getTexture(), playerRunning.getFrame(), {player->bounds.x, player->bounds.y, 200, 120}, {0.f, 0.f}, 0, WHITE);
+            } else if (player->status == KICKING_UP) {
+                DrawTexturePro(playerUpKicking.getTexture(), playerUpKicking.getFrame(), {player->bounds.x, player->bounds.y, 120, 200}, {0.f, 0.f}, 0, WHITE);
+            }
 
             for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
                 DrawRectangle(iter->bounds.x, iter->bounds.y, iter->bounds.width, iter->bounds.height, iter->color);
@@ -190,7 +202,14 @@ public:
     void update() {
         PlayMusicStream(song->back_sound);
         UpdateMusicStream(song->back_sound);
-        playerRunning.nextFrame();
+        if(player->status == RUNNING) {
+            playerRunning.nextFrame();
+        } else if (player->status == KICKING_UP) {
+            if(!playerUpKicking.nextFrame()) {
+                player->status = RUNNING;
+                player->rail = 1;   // 下落
+            }
+        }
         //====================键盘操控=================
         if(IsKeyPressed(KEY_ESCAPE)) {
             isEnd = true;
@@ -198,13 +217,15 @@ public:
         if(IsKeyPressed(KEY_Q)) {
             isEnd = true;
         }
-        if (IsKeyPressed(KEY_D) || IsKeyPressed(KEY_F)) {
-            player->rail -= 1;
+        if (isKeyPressed(KEY_D) || isKeyPressed(KEY_F)) {
+            player->rail = 0;
+            player->status = KICKING_UP;
+            playerUpKicking.curFrame = 0;
             printf("[debug] press key Time: %f\n", GetTime());
             score += song->compute_score(GetTime());
         }
-        if (IsKeyPressed(KEY_J) || IsKeyPressed(KEY_K)) {
-            player->rail += 1;
+        if (isKeyPressed(KEY_J) || isKeyPressed(KEY_K)) {
+            player->rail = 1;
             score += song->compute_score(GetTime());
         }
 
