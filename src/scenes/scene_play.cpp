@@ -129,6 +129,7 @@ class ScenePlay: public SceneBase {
 
 private:
     bool isEnd = false;
+    bool gotoScore = false;
     Player *player;
     Song *song;
 
@@ -290,7 +291,11 @@ public:
     }
 
     SceneType end() {
-        return SCENE_SELECT;
+        if(gotoScore) {
+            gotoScore = false;
+            return SCENE_SCORE;
+        }
+        return SCENE_NULL;
     }
 
     bool is_end() {
