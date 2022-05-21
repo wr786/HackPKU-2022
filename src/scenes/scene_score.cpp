@@ -115,9 +115,9 @@ public:
             DrawTriangle({1050, 670}, {1150, 820}, {1150, 520}, Fade(BLACK, 0.5f));
             Font font_caption2 = LoadFontEx("../resource/font/No.022-Sounso-Tiger-2.ttf", 96, 0, 0);
             DrawTextEx(font_caption2, TextFormat("Perfect: %04d", total_perfect ), {basex, base}, 40, 0, PURPLE);
-            DrawTextEx(font_caption2, TextFormat("Good: %04d", total_good ), {basex, base + interval}, 40, 0, PURPLE);
-            DrawTextEx(font_caption2, TextFormat("Miss: %04d", total_miss ), {basex, base + interval * 2}, 40, 0, PURPLE);
-            DrawTextEx(font_caption2, TextFormat("Max combo: %04d", max_combo ), {basex, base + interval * 3}, 40, 0, PURPLE);
+            DrawTextEx(font_caption2, TextFormat("Good: %04d", total_good ), {basex, base + interval}, 40, 0, RED);
+            DrawTextEx(font_caption2, TextFormat("Miss: %04d", total_miss ), {basex, base + interval * 2}, 40, 0, GREEN);
+            DrawTextEx(font_caption2, TextFormat("Max combo: %04d", max_combo ), {basex, base + interval * 3}, 40, 0, PINK);
             DrawTextEx(font_caption2, TextFormat("ACC:%.2f%%", (total_good + total_perfect)/(total_miss + total_good + total_perfect) * 100), {basex, base + interval * 4 + 10}, 60, 0, WHITE);
 
         EndDrawing();
