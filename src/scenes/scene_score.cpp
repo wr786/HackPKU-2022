@@ -99,13 +99,6 @@ public:
             } else if(score > 120) {
                 DrawTextEx(font_caption, TextFormat("P"), {663, 376}, 150, 0, PINK);
             }
-
-            
-
-            // // // 画ACC
-            // // DrawTextEx(font_caption, TextFormat("ACC:%.2f%%", scoreboard.get_acc()), {207, 433}, 30, 0, WHITE);
-            // // // 画Combo //todo full combo特殊字幕
-            // // DrawTextEx(font_caption, TextFormat("Max Combo: %d", scoreboard.maxCombo), {1060, 433}, 40, 0, WHITE);
             
             // 画各note个数
            float base = 550;
