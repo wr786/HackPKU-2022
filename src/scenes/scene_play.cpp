@@ -135,12 +135,11 @@ private:
     Animation playerUpKicking;
     Animation playerDownKicking;
     Texture2D textureNote;
-    Texture2D perfectNote;
-
-    bool isKeyPressed(KeyboardKey key)
-    {
-        if (IsKeyPressed(key))
-        {
+    Animation aPerfect, aGood, aMiss;
+    vector<Animation> effects;
+    
+    bool isKeyPressed(KeyboardKey key) {
+        if(IsKeyPressed(key)) {
             play_once(taps[14]);
             return true;
         }
@@ -169,6 +168,7 @@ public:
             score = 3;
             song->notes[index].status = PERFECT;
             player->total_perfect += 1;
+            effects.push_back(aPerfect);
             // printf("[debug] notes %d status %d \n", index, song->notes[index].status );
         }
         else if (min_dis > 100.f && min_dis < 200.0f)
@@ -176,6 +176,7 @@ public:
             score = 1;
             player->total_good += 1;
             song->notes[index].status = GOOD;
+            effects.push_back(aGood);
             // printf("[debug] notes %d status %d \n", index, song->notes[index].status );
         }
         else
@@ -218,16 +219,17 @@ public:
         song->CreateNotesFromFile();
         song->InitMusic();
 
-        if (!loaded)
-        {
-            background = LoadTexture(string(IMAGE_FOLDER + "cyberpunk_street_background.png").c_str());
-            midground = LoadTexture(string(IMAGE_FOLDER + "cyberpunk_street_midground.png").c_str());
-            foreground = LoadTexture(string(IMAGE_FOLDER + "cyberpunk_street_foreground.png").c_str());
-            playerRunning = Animation(IMAGE_FOLDER + "player_running.png", 6, 1, 20);
-            playerUpKicking = Animation(IMAGE_FOLDER + "player_upkicking.png", 9, 1, 20);
-            playerDownKicking = Animation(IMAGE_FOLDER + "player_downkicking.png", 8, 1, 20);
-            textureNote = LoadTexture(string(IMAGE_FOLDER + "soccer.png").c_str());
-            perfectNote = LoadTexture(string(IMAGE_FOLDER + "perfectNote.png").c_str());
+        if(!loaded) {
+            background = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_background.png").c_str());
+            midground = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_midground.png").c_str());
+            foreground = LoadTexture(string(IMAGE_FOLDER+"cyberpunk_street_foreground.png").c_str());
+            playerRunning = Animation(IMAGE_FOLDER+"player_running.png", 6, 1, 20);
+            playerUpKicking = Animation(IMAGE_FOLDER+"player_upkicking.png", 9, 1, 20);
+            playerDownKicking = Animation(IMAGE_FOLDER+"player_downkicking.png", 8, 1, 20);
+            textureNote = LoadTexture(string(IMAGE_FOLDER+"soccer.png").c_str());
+            aPerfect = Animation(IMAGE_FOLDER+"score_perfect.png", 3, 1, 8);
+            aGood = Animation(IMAGE_FOLDER+"score_good.png", 3, 1, 8);
+            aMiss = Animation(IMAGE_FOLDER+"score_miss.png", 3, 1, 8);
 
             loaded = true;
         }
@@ -288,7 +290,10 @@ public:
             }
             else
             {
-                DrawTexturePro(perfectNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
+                // DrawTexturePro(perfectNote, {0, 0, (float)textureNote.width, (float)textureNote.height}, iter->bounds, {0.f, 0.f}, 0, WHITE);
+            }
+            for(auto& effect: effects) {
+                DrawTexturePro(effect.getTexture(), effect.getFrame(), {player->bounds.x, player->bounds.y-100, effect.getFrame().width, effect.getFrame().height}, {0.f, 0.f}, 0, WHITE);
             }
         }
         EndDrawing();
@@ -335,6 +340,14 @@ public:
             }
         }
 
+        for(auto iter = effects.begin(); iter != effects.end(); ) {
+            if(!iter->nextFrame()) {
+                effects.erase(iter);
+            } else {
+                iter++;
+            }
+        }
+
         //====================键盘操控=================
         if (IsKeyPressed(KEY_ESCAPE))
         {
@@ -376,7 +389,10 @@ public:
             if (iter->is_miss() && iter->status != PERFECT && iter->status != GOOD)
             {
                 miss += 1;
-                iter->status = MISS;
+                if (iter->status != MISS) { // 第一次计算时
+                    effects.push_back(aMiss);
+                }
+                iter->status = MISS;  
             }
         }
         player->total_miss = miss;
