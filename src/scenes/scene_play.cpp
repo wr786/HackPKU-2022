@@ -130,7 +130,7 @@ private:
     Song *song;
 
     float InitTime = 0.f;
-    float score = 0.f;
+    int score = 0;
 
     bool loaded = false;
     Texture2D background;
@@ -153,8 +153,8 @@ private:
     }
 public:
 
-    float compute_score() {
-        float score = 0.f;
+    int compute_score() {
+        int score = 0;
         double min_dis = 999999.0;
         int index = 0;
         for (auto iter = song->notes.begin(); iter != song->notes.end(); iter++) {
@@ -166,19 +166,19 @@ public:
         printf("[debug] notes %d has min_dis %f\n", index, min_dis);
         if (min_dis < 100.0f)
         {
-            score = 3.f;
+            score = 3;
             song->notes[index].status = PERFECT;
             // printf("[debug] notes %d status %d \n", index, song->notes[index].status );
         }
         else if (min_dis > 100.f && min_dis < 200.0f)
         {
-            score = 1.f;
+            score = 1;
             song->notes[index].status = GOOD;
             // printf("[debug] notes %d status %d \n", index, song->notes[index].status );
         }
         else
         {
-            score = 0.f;
+            score = 0;
             // song->notes[index].status = MISS;
         }
         return score;
