@@ -57,6 +57,13 @@ int main()
             g->draw();
         }
     }
+    // write all notes of creator mode.
+    auto play_ptr = dynamic_cast<ScenePlay *>(scenes[SCENE_PLAY]);
+    if (play_ptr == nullptr) {
+        ERRORF("dynamic_cast failed.")
+    } else {
+        play_ptr->WriteAllNotes();
+    }
     //Close window and OpenGL context
     CloseWindow();
 }
